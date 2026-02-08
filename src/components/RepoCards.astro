@@ -1,0 +1,83 @@
+---
+const { username, featured = [] } = Astro.props;
+---
+
+<div class="glass shadow-soft rounded-2xl p-6">
+  <div class="flex items-center justify-between gap-3">
+    <div>
+      <p class="font-semibold text-lg">Featured Repositories</p>
+      <p class="text-sm text-slate-600 dark:text-slate-300">
+        Pinned first, then filled from GitHub API.
+      </p>
+    </div>
+    <a
+      class="text-sm underline opacity-80 hover:opacity-100"
+      href={`https://github.com/${username}`}
+      target="_blank"
+      rel="noreferrer"
+    >
+      View GitHub →
+    </a>
+  </div>
+
+  <div id="repo-grid" class="mt-5 grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+  <p id="repo-error" class="mt-4 text-sm text-rose-400 hidden"></p>
+
+  <script define:vars={{ username, featured }}>
+    (async () => {
+      const grid = document.getElementById("repo-grid");
+      const err = document.getElementById("repo-error");
+
+      const card = (r) => `
+        <a class="group glass rounded-2xl p-4 border border-white/10 hover:translate-y-[-2px] transition shadow-soft"
+           href="${r.html_url}" target="_blank" rel="noreferrer">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <p class="font-semibold">${r.name}</p>
+              <p class="text-sm text-slate-600 dark:text-slate-300 mt-1 line-clamp-2">${r.description ?? ""}</p>
+            </div>
+            <span class="text-xs px-2 py-1 rounded-full bg-black/5 dark:bg-white/10 border border-black/10 dark:border-white/10">
+              ${r.language ?? "Repo"}
+            </span>
+          </div>
+          <div class="mt-3 flex gap-3 text-xs text-slate-600 dark:text-slate-300">
+            <span>★ ${r.stargazers_count}</span>
+            <span>⑂ ${r.forks_count}</span>
+            <span class="opacity-70">Updated ${new Date(r.updated_at).toLocaleDateString()}</span>
+          </div>
+        </a>
+      `;
+
+      try {
+        const pinned = [];
+        for (const name of (featured || [])) {
+          const res = await fetch(`https://api.github.com/repos/${username}/${name}`);
+          if (res.ok) pinned.push(await res.json());
+        }
+
+        const allRes = await fetch(`https://api.github.com/users/${username}/repos?per_page=100&sort=updated`);
+        if (!allRes.ok) throw new Error(`GitHub API error: ${allRes.status}`);
+        const all = await allRes.json();
+
+        const pinnedNames = new Set(pinned.map((r) => r.name));
+        const fill = all
+          .filter((r) => !r.fork && !pinnedNames.has(r.name))
+          .sort(
+            (a, b) =>
+              (b.stargazers_count - a.stargazers_count) ||
+              (new Date(b.updated_at) - new Date(a.updated_at))
+          )
+          .slice(0, Math.max(0, 6 - pinned.length));
+
+        const finalList = [...pinned, ...fill];
+        grid.innerHTML = finalList.length
+          ? finalList.map(card).join("")
+          : `<div class="text-sm text-slate-600 dark:text-slate-300">No public repos found yet.</div>`;
+      } catch (e) {
+        err.classList.remove("hidden");
+        err.textContent = "Could not load repos (username or API rate limit).";
+        console.error(e);
+      }
+    })();
+  </script>
+</div>
