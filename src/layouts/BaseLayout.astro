@@ -15,8 +15,7 @@ const { title = "Home", description = "Personal site" } = Astro.props;
       (() => {
         const key = "theme";
         const saved = localStorage.getItem(key);
-        const systemDark = window.matchMedia?.("(prefers-color-scheme: dark)")?.matches;
-        const dark = saved ? saved === "dark" : systemDark;
+        const dark = saved ? saved === "dark" : true;
         document.documentElement.classList.toggle("dark", dark);
       })();
     </script>
