@@ -12,9 +12,9 @@ import { site } from "../data/site";
 <BaseLayout title={`${site.name} — Personal Site`} description={site.tagline}>
   <header class="sticky top-0 z-40 backdrop-blur border-b border-black/5 dark:border-white/10 bg-white/70 dark:bg-slate-950/60">
     <nav class="max-w-5xl mx-auto px-5 h-16 flex items-center justify-between">
-      <a href="#" class="font-semibold tracking-tight">{site.name}</a>
+      <a href="#" class="font-semibold tracking-tight text-heading">{site.name}</a>
 
-      <div class="hidden md:flex items-center gap-5 text-sm">
+      <div class="hidden md:flex items-center gap-5 text-sm text-body">
         <a class="opacity-80 hover:opacity-100" href="#about">About</a>
         <a class="opacity-80 hover:opacity-100" href="#skills">Skills</a>
         <a class="opacity-80 hover:opacity-100" href="#experience">Experience</a>
@@ -44,16 +44,16 @@ import { site } from "../data/site";
 
         <div class="relative grid gap-10 md:grid-cols-[1.1fr_0.9fr] items-center">
           <div>
-            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/70 dark:bg-white/10 text-xs uppercase tracking-widest border border-white/40 dark:border-white/10">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/70 dark:bg-white/10 text-xs uppercase tracking-widest border border-white/40 dark:border-white/10 text-heading">
               <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
               B.S. Computer Science • Expected May 2027
             </div>
-            <p class="mt-4 text-sm uppercase tracking-widest text-slate-700 dark:text-slate-400">{site.location}</p>
-            <h1 class="mt-3 text-3xl md:text-5xl font-semibold tracking-tight">
+            <p class="mt-4 text-sm uppercase tracking-widest text-secondary">{site.location}</p>
+            <h1 class="mt-3 text-3xl md:text-5xl font-semibold tracking-tight text-heading">
               {site.tagline}
             </h1>
 
-            <p class="mt-5 text-slate-800 dark:text-slate-200 max-w-3xl leading-relaxed">
+            <p class="mt-5 text-body max-w-3xl leading-relaxed">
               {site.about[0]}
             </p>
 
@@ -79,8 +79,8 @@ import { site } from "../data/site";
             <div class="mt-8 grid md:grid-cols-3 gap-4">
               {site.highlights.map((h) => (
                 <div class="glass rounded-2xl p-4 border border-white/10">
-                  <p class="text-xs uppercase tracking-widest text-slate-700 dark:text-slate-400">{h.label}</p>
-                  <p class="mt-1 font-semibold">{h.value}</p>
+                  <p class="text-xs uppercase tracking-widest text-secondary">{h.label}</p>
+                  <p class="mt-1 font-semibold text-heading">{h.value}</p>
                 </div>
               ))}
             </div>
@@ -97,12 +97,12 @@ import { site } from "../data/site";
             </div>
             <div class="grid gap-3">
               <div class="glass rounded-2xl p-4 border border-white/10">
-                <p class="text-xs uppercase tracking-widest text-slate-700 dark:text-slate-400">Signature</p>
-                <p class="mt-1 font-semibold">System architecture, software engineering, and database systems.</p>
+                <p class="text-xs uppercase tracking-widest text-secondary">Signature</p>
+                <p class="mt-1 font-semibold text-heading">System architecture, software engineering, and database systems.</p>
               </div>
             <div class="glass rounded-2xl p-4 border border-white/10">
-                <p class="text-xs uppercase tracking-widest text-slate-700 dark:text-slate-400">Currently</p>
-                <p class="mt-1 font-semibold">RocksDB workload-aware tuning and data governance ETL.</p>
+                <p class="text-xs uppercase tracking-widest text-secondary">Currently</p>
+                <p class="mt-1 font-semibold text-heading">RocksDB workload-aware tuning and data governance ETL.</p>
               </div>
             </div>
           </div>
@@ -114,21 +114,21 @@ import { site } from "../data/site";
   <Section id="about" title="About" kicker="who i am">
     <div class="grid md:grid-cols-2 gap-5">
       <div class="glass shadow-soft rounded-2xl p-6">
-        <p class="leading-relaxed text-slate-900 dark:text-slate-200">
+        <p class="leading-relaxed text-heading">
           {site.about.join(" ")}
         </p>
       </div>
 
       <div class="glass shadow-soft rounded-2xl p-6">
-        <p class="font-semibold">Quick links</p>
-        <div class="mt-4 grid gap-2 text-sm">
+        <p class="font-semibold text-heading">Quick links</p>
+        <div class="mt-4 grid gap-2 text-sm text-heading">
           <a class="underline opacity-80 hover:opacity-100" href={site.linkedin} target="_blank" rel="noreferrer">LinkedIn</a>
           <a class="underline opacity-80 hover:opacity-100" href={`https://github.com/${site.githubUsername}`} target="_blank" rel="noreferrer">GitHub</a>
           <a class="underline opacity-80 hover:opacity-100" href={site.resumePath} target="_blank" rel="noreferrer">Resume</a>
           <a class="underline opacity-80 hover:opacity-100" href={`mailto:${site.email}`}>Email</a>
         </div>
-        <p class="mt-6 text-xs text-slate-700 dark:text-slate-400">
-          Tip: press <span class="px-2 py-1 rounded bg-black/5 dark:bg-white/10 border border-black/10 dark:border-white/10">Ctrl K</span> for the command palette.
+        <p class="mt-6 text-xs text-secondary">
+          Tip: press <span class="px-2 py-1 rounded bg-black/5 dark:bg-white/10 border border-black/10 dark:border-white/10 text-heading">Ctrl K</span> for the command palette.
         </p>
       </div>
     </div>
@@ -148,18 +148,18 @@ import { site } from "../data/site";
         <div class="glass shadow-soft rounded-2xl p-6">
           <div class="flex items-start justify-between gap-4">
             <div>
-              <p class="text-lg font-semibold">{p.name}</p>
-              <p class="mt-2 text-slate-800 dark:text-slate-200">{p.desc}</p>
+              <p class="text-lg font-semibold text-heading">{p.name}</p>
+              <p class="mt-2 text-body">{p.desc}</p>
             </div>
             {p.link && (
-              <a class="text-sm underline opacity-80 hover:opacity-100" href={p.link} target="_blank" rel="noreferrer">
+              <a class="text-sm underline opacity-80 hover:opacity-100 text-heading" href={p.link} target="_blank" rel="noreferrer">
                 Link →
               </a>
             )}
           </div>
           <div class="mt-4 flex flex-wrap gap-2">
             {p.tech.map((t) => (
-              <span class="text-xs px-2.5 py-1 rounded-full bg-black/5 dark:bg-white/10 border border-black/10 dark:border-white/10">
+              <span class="text-xs px-2.5 py-1 rounded-full bg-black/5 dark:bg-white/10 border border-black/10 dark:border-white/10 text-heading">
                 {t}
               </span>
             ))}
@@ -176,9 +176,9 @@ import { site } from "../data/site";
   <Section id="contact" title="Contact" kicker="say hi">
     <div class="glass shadow-soft rounded-2xl p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
       <div>
-        <p class="font-semibold text-lg">Let’s talk</p>
-        <p class="text-slate-800 dark:text-slate-200 mt-1">
-          Email: <a class="underline" href={`mailto:${site.email}`}>{site.email}</a>
+        <p class="font-semibold text-lg text-heading">Let's talk</p>
+        <p class="text-body mt-1">
+          Email: <a class="underline text-body" href={`mailto:${site.email}`}>{site.email}</a>
         </p>
       </div>
       <div class="flex flex-wrap gap-3">
@@ -197,7 +197,7 @@ import { site } from "../data/site";
       </div>
     </div>
 
-    <footer class="max-w-5xl mx-auto px-5 pb-12 pt-10 text-xs text-slate-700 dark:text-slate-400">
+    <footer class="max-w-5xl mx-auto px-5 pb-12 pt-10 text-xs text-secondary">
       Built with Astro • Deployed on GitHub Pages • © {new Date().getFullYear()} {site.name}
     </footer>
   </Section>

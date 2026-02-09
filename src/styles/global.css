@@ -17,14 +17,12 @@ html {
 .glass {
   background: rgba(255, 255, 255, 0.85);
   border: 1px solid rgba(15, 23, 42, 0.08);
-  color: #0f172a;
   backdrop-filter: blur(14px);
 }
 
 .dark .glass {
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.14);
-  color: inherit;
 }
 
 .noise {
@@ -82,3 +80,18 @@ html {
 .dark .btn-outline:hover {
   background: rgba(226,232,240,.08);
 }
+
+/* color for theme switching */
+.text-heading { color: #0f172a; }
+.text-body { color: #1e293b; }
+.text-secondary { color: #334155; }
+.text-muted { color: #64748b; }
+
+.dark .text-heading { color: #f1f5f9; }
+.dark .text-body { color: #e2e8f0; }
+.dark .text-secondary { color: #cbd5e1; }
+.dark .text-muted { color: #94a3b8; }
+
+/* Placeholder */
+.placeholder\:text-muted::placeholder { color: #64748b; }
+.dark .placeholder\:text-muted::placeholder { color: #94a3b8; }
