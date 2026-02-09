@@ -6,6 +6,7 @@ export const site = {
   linkedin: "https://www.linkedin.com/in/hongchen-yang-3803b4294/",
   githubUsername: "steventimes",
   resumePath: "/resume.pdf",
+  photoPath: "/headphoto.jpg",
 
   about: [
     "I’m a CS student at Brandeis University focused on data systems and storage engines.",

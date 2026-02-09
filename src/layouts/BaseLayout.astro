@@ -10,7 +10,7 @@ const { title = "Home", description = "Personal site" } = Astro.props;
     <link rel="icon" href={`${import.meta.env.BASE_URL}favicon.svg`} />
     <title>{title}</title>
 
-    <script>
+    <script is:inline>
       // Dark mode: store preference
       (() => {
         const key = "theme";
@@ -25,5 +25,23 @@ const { title = "Home", description = "Personal site" } = Astro.props;
     <div class="noise min-h-screen">
       <slot />
     </div>
+    <script is:inline>
+      (() => {
+        const key = "theme";
+        const btn = document.getElementById("themeBtn");
+        const updateLabel = () => {
+          if (!btn) return;
+          const isDark = document.documentElement.classList.contains("dark");
+          btn.textContent = isDark ? "Light" : "Dark";
+          btn.setAttribute("aria-pressed", String(isDark));
+        };
+        updateLabel();
+        btn?.addEventListener("click", () => {
+          const isDark = document.documentElement.classList.toggle("dark");
+          localStorage.setItem(key, isDark ? "dark" : "light");
+          updateLabel();
+        });
+      })();
+    </script>
   </body>
 </html>
