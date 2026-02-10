@@ -62,12 +62,14 @@ export const site = {
     {
       name: "fpstreams (PyPI)",
       desc: "Published a type-safe functional programming library for Python with lazy pipelines, parallel execution, and an optional Rust acceleration path.",
-      tech: ["Python", "PyPI", "Rust", "CI/CD"]
+      tech: ["Python", "PyPI", "Rust", "CI/CD"],
+      link: "https://pypi.org/project/fpstreams/"
     },
     {
       name: "Soccer Analytics Platform",
       desc: "Built a Dockerized ingestion and storage pipeline (PostgreSQL, Redis) for match data with caching to improve query responsiveness.",
-      tech: ["PostgreSQL", "Redis", "Docker", "Python"]
+      tech: ["PostgreSQL", "Redis", "Docker", "Python"],
+      link: "#repos"
     },
   ]
 };
