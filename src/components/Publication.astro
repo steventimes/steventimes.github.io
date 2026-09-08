@@ -1,0 +1,24 @@
+---
+import type { Publication } from "../data/site";
+
+interface Props {
+  publication: Publication;
+}
+
+const { publication } = Astro.props;
+---
+<article class="publication-entry">
+  <div>
+    <p class="section-kicker">Published paper</p>
+    <h3>{publication.title}</h3>
+    <p class="publication-entry__authors">{publication.authors}</p>
+    <p class="publication-entry__venue">
+      <em>{publication.venue}</em><br />
+      {publication.details}
+    </p>
+    <p class="publication-entry__role">{publication.role}</p>
+  </div>
+  <a class="text-link" href={publication.url} target="_blank" rel="noreferrer">
+    View paper<span aria-hidden="true"> ↗</span>
+  </a>
+</article>

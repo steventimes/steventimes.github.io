@@ -33,14 +33,11 @@ jobs:
       - name: Install
         run: npm ci --ignore-scripts
 
-      - name: Check
-        run: npm run check
+      - name: Install browser
+        run: npx playwright install --with-deps chromium
 
-      - name: Unit tests
-        run: npm run test:unit
-
-      - name: Build
-        run: npm run build
+      - name: Verify
+        run: npm run verify:all
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

@@ -1,5 +1,19 @@
 import { expect, test } from "@playwright/test";
 
+const contrastRatio = (foreground: string, background: string) => {
+  const parse = (color: string) => color.match(/\d+(?:\.\d+)?/g)!.slice(0, 3).map(Number);
+  const luminance = (color: string) => {
+    const channels = parse(color).map((channel) => {
+      const value = channel / 255;
+      return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+    });
+    return 0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2];
+  };
+  const lighter = Math.max(luminance(foreground), luminance(background));
+  const darker = Math.min(luminance(foreground), luminance(background));
+  return (lighter + 0.05) / (darker + 0.05);
+};
+
 test("renders the research-first hero and research hierarchy", async ({ page }) => {
   await page.goto("/");
 
@@ -9,7 +23,7 @@ test("renders the research-first hero and research hierarchy", async ({ page }) 
     name: "Hongchen (Steven) Yang"
   })).toHaveCount(1);
   await expect(introduction.getByText(
-    "I study adaptive storage systems and build agent workflows for real operational tasks.",
+    "I study adaptive storage systems and build AI agent workflows.",
     { exact: true }
   )).toBeVisible();
   await expect(introduction.getByText("Hero", { exact: true })).toHaveCount(0);
@@ -26,12 +40,7 @@ test("renders the research-first hero and research hierarchy", async ({ page }) 
     level: 3,
     name: "FluidLSM and workload-aware RocksDB tuning"
   })).toBeVisible();
-  await expect(page.locator(".research-trace li")).toHaveText([
-    "Workload shifts",
-    "Compaction behavior",
-    "Adaptive tuning",
-    "FluidLSM"
-  ]);
+  await expect(page.locator(".research-trace")).toHaveCount(0);
   await expect(page.getByRole("heading", {
     level: 3,
     name: "Data fragmentation and text-to-SQL evaluation"
@@ -43,6 +52,7 @@ test("uses the research-first page order and no runtime search hooks", async ({ 
 
   expect(await page.locator("main h2").allTextContents()).toEqual([
     "Research",
+    "Publication",
     "Experience",
     "Public Code",
     "Other Work",
@@ -50,7 +60,7 @@ test("uses the research-first page order and no runtime search hooks", async ({ 
     "Contact"
   ]);
 
-  for (const id of ["about", "research", "experience", "code", "other-work", "skills", "contact"]) {
+  for (const id of ["about", "research", "publication", "experience", "code", "other-work", "skills", "contact"]) {
     await expect(page.locator(`#${id}`)).toHaveCount(1);
   }
 
@@ -59,6 +69,22 @@ test("uses the research-first page order and no runtime search hooks", async ({ 
     .getEntriesByType("resource")
     .map((entry) => entry.name));
   expect(requestedUrls.some((url) => url.includes("api.github.com"))).toBe(false);
+});
+
+test("shows the published paper with a DOI link and bounded role", async ({ page }) => {
+  await page.goto("/");
+
+  const publication = page.locator("#publication");
+  await expect(publication.getByRole("heading", {
+    level: 3,
+    name: "From Single-View to Multi-view: Learning Informative Graphs for Robust Subspace Segmentation"
+  })).toBeVisible();
+  await expect(publication.getByRole("link", { name: /View paper/ })).toHaveAttribute(
+    "href",
+    "https://doi.org/10.1007/978-3-032-23708-8_8"
+  );
+  await expect(publication.getByText("Third author; contributed in a supporting role.", { exact: true }))
+    .toBeVisible();
 });
 
 test("features the latest internship and keeps its code link in context", async ({ page }) => {
@@ -102,13 +128,28 @@ test("renders curated public code and deployment-only other work", async ({ page
   await expect(page.locator('a[href*="github.com/steventimes/software-system-atlas"]')).toHaveCount(0);
 });
 
-test("uses the restrained systems-research visual system", async ({ page }) => {
+test("stacks the related study after the primary research narrative", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto("/");
 
-  await expect(page.locator("body")).toHaveCSS("background-color", "rgb(247, 249, 252)");
-  await expect(page.locator(".research-primary")).toHaveCSS("border-top-color", "rgb(34, 84, 209)");
-  await expect(page.locator(".research-secondary")).toHaveCSS("border-top-color", "rgb(20, 125, 119)");
+  const primary = await page.locator(".research-primary").boundingBox();
+  const secondary = await page.locator(".research-secondary").boundingBox();
+  expect(primary).not.toBeNull();
+  expect(secondary).not.toBeNull();
+  expect(secondary!.y).toBeGreaterThanOrEqual(primary!.y + primary!.height);
+});
+
+test("uses comfortable contrast for secondary text and structural rules", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto("/");
+
+  const colors = await page.locator(".research-summary").first().evaluate((element) => ({
+    text: getComputedStyle(element).color,
+    page: getComputedStyle(document.body).backgroundColor,
+    rule: getComputedStyle(document.querySelector(".project-list")!).borderTopColor
+  }));
+  expect(contrastRatio(colors.text, colors.page)).toBeGreaterThanOrEqual(7);
+  expect(contrastRatio(colors.rule, colors.page)).toBeGreaterThanOrEqual(1.5);
 
   const portrait = await page.getByRole("img", { name: /Hongchen.*portrait/i }).boundingBox();
   expect(portrait).not.toBeNull();
@@ -150,7 +191,7 @@ test("brings primary research into the first desktop viewport", async ({ page })
   const box = await title.boundingBox();
   expect(box).not.toBeNull();
   expect(box!.y).toBeLessThan(890);
-  expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBeLessThan(4300);
+  expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBeLessThan(4700);
 });
 
 test("keeps labels readable to assistive technology", async ({ page }) => {
@@ -164,14 +205,17 @@ test("keeps the larger mobile layout compact", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
 
-  expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBeLessThan(7000);
+  expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBeLessThan(7300);
 });
 
 for (const viewport of [
   { width: 1440, height: 1000 },
+  { width: 861, height: 1000 },
   { width: 768, height: 1024 },
+  { width: 620, height: 900 },
   { width: 390, height: 844 },
-  { width: 360, height: 800 }
+  { width: 360, height: 800 },
+  { width: 320, height: 800 }
 ]) {
   test(`has no horizontal overflow at ${viewport.width}px`, async ({ page }) => {
     await page.setViewportSize(viewport);
@@ -180,6 +224,61 @@ for (const viewport of [
     expect(overflow).toBeLessThanOrEqual(0);
   });
 }
+
+test("keeps mobile contact links above the portrait", async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 800 });
+  await page.goto("/");
+  await page.evaluate(() => document.fonts.ready);
+
+  const actions = await page.locator(".hero__actions").boundingBox();
+  const portrait = await page.locator(".hero__portrait-frame").boundingBox();
+  expect(actions).not.toBeNull();
+  expect(portrait).not.toBeNull();
+  expect(actions!.y + actions!.height).toBeLessThanOrEqual(portrait!.y);
+  await expect(page.locator("#about").getByRole("link", { name: "Email", exact: true }))
+    .toBeInViewport();
+});
+
+test("mobile menu supports dismissal and section navigation", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/");
+
+  const menu = page.locator(".site-header__menu");
+  const toggle = menu.locator("summary");
+  await toggle.click();
+  await expect(menu).toHaveAttribute("open", "");
+  await page.keyboard.press("Escape");
+  await expect(menu).not.toHaveAttribute("open");
+  await expect(toggle).toBeFocused();
+
+  await page.keyboard.press("Enter");
+  await expect(menu).toHaveAttribute("open", "");
+  await page.keyboard.press("Tab");
+  await expect(menu.getByRole("link", { name: "Research", exact: true })).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(/#research$/);
+  await expect(menu).not.toHaveAttribute("open");
+  await expect(page.locator("#research h2")).toBeInViewport();
+
+  await toggle.click();
+  await page.locator(".site-header__name").click();
+  await expect(menu).not.toHaveAttribute("open");
+});
+
+test("keyboard users can skip navigation with reduced motion", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/");
+  await page.keyboard.press("Tab");
+  await expect(page.getByRole("link", { name: "Skip to content" })).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(/#main-content$/);
+  await page.keyboard.press("Tab");
+  await expect(page.locator("#about").getByRole("link", { name: "Email", exact: true }))
+    .toBeFocused();
+  expect(await page.evaluate(() => getComputedStyle(document.documentElement).scrollBehavior))
+    .toBe("auto");
+});
 
 test("JavaScript-disabled mobile navigation keeps section links available", async ({ browser }) => {
   const context = await browser.newContext({

@@ -18,15 +18,40 @@ const { name, navigation, resumePath } = Astro.props;
     </div>
 
     <div class="site-header__actions">
-      <a href={resumePath}>Resume</a>
+      <a href={resumePath}>Résumé</a>
     </div>
 
     <details class="mobile-menu site-header__menu">
       <summary>Menu</summary>
       <div>
         {navigation.map((item) => <a href={item.href}>{item.label}</a>)}
-        <a href={resumePath}>Resume</a>
+        <a href={resumePath}>Résumé</a>
       </div>
     </details>
   </nav>
 </header>
+
+<script>
+  const menu = document.querySelector<HTMLDetailsElement>(".site-header__menu");
+
+  if (menu) {
+    menu.addEventListener("click", (event) => {
+      if (event.target instanceof Element && event.target.closest("a")) {
+        menu.open = false;
+      }
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && menu.open) {
+        menu.open = false;
+        menu.querySelector("summary")?.focus();
+      }
+    });
+
+    document.addEventListener("click", (event) => {
+      if (event.target instanceof Node && !menu.contains(event.target)) {
+        menu.open = false;
+      }
+    });
+  }
+</script>

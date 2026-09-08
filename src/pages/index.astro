@@ -5,6 +5,7 @@ import Experience from "../components/Experience.astro";
 import Hero from "../components/Hero.astro";
 import OtherWork from "../components/OtherWork.astro";
 import PublicCode from "../components/PublicCode.astro";
+import Publication from "../components/Publication.astro";
 import Research from "../components/Research.astro";
 import Section from "../components/Section.astro";
 import SiteHeader from "../components/SiteHeader.astro";
@@ -22,6 +23,10 @@ import "../styles/global.css";
 
     <Section id="research" title="Research">
       <Research primary={site.research.primary} secondary={site.research.secondary} />
+    </Section>
+
+    <Section id="publication" title="Publication">
+      <Publication publication={site.publication} />
     </Section>
 
     <Section id="experience" title="Experience" variant="band">

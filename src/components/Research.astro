@@ -23,12 +23,6 @@ const { primary, secondary } = Astro.props;
 
     <p class="research-summary">{primary.summary}</p>
 
-    {primary.trace && (
-      <ol class="research-trace" aria-label="Research direction">
-        {primary.trace.map((step) => <li>{step}</li>)}
-      </ol>
-    )}
-
     <dl class="research-details">
       <div>
         <dt>Research question</dt>
@@ -44,9 +38,11 @@ const { primary, secondary } = Astro.props;
   </article>
 
   <article id={secondary.id} class="research-secondary">
-    <header>
-      <p class="section-kicker">Related study</p>
-      <h3>{secondary.title}</h3>
+    <header class="research-heading">
+      <div>
+        <p class="section-kicker">Related study</p>
+        <h3>{secondary.title}</h3>
+      </div>
       <div class="research-meta">
         <p>{secondary.organization}</p>
         <p>{secondary.time}</p>

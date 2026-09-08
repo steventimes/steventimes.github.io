@@ -9,11 +9,10 @@ const { projects } = Astro.props;
 ---
 <div class="public-code">
   <p class="public-code__intro">Maintained public projects.</p>
-  <ol class="project-list">
-    {projects.map((project, index) => (
+  <ul class="project-list">
+    {projects.map((project) => (
       <li>
         <article class="project-row">
-          <p class="project-row__index">{String(index + 1).padStart(2, "0")}</p>
           <div class="project-row__body">
             <h3>{project.name}</h3>
             <p>{project.description}</p>
@@ -21,15 +20,15 @@ const { projects } = Astro.props;
           </div>
           <div class="project-row__links">
             {project.packageUrl && (
-              <a href={project.packageUrl} target="_blank" rel="noreferrer">PyPI<span aria-hidden="true"> ↗</span></a>
+              <a href={project.packageUrl} aria-label={`${project.name} on PyPI`} target="_blank" rel="noreferrer">PyPI<span aria-hidden="true"> ↗</span></a>
             )}
             {project.homepage && (
-              <a href={project.homepage} target="_blank" rel="noreferrer">Docs<span aria-hidden="true"> ↗</span></a>
+              <a href={project.homepage} aria-label={`${project.name} Docs`} target="_blank" rel="noreferrer">Docs<span aria-hidden="true"> ↗</span></a>
             )}
-            <a href={project.url} target="_blank" rel="noreferrer">GitHub<span aria-hidden="true"> ↗</span></a>
+            <a href={project.url} aria-label={`${project.name} on GitHub`} target="_blank" rel="noreferrer">GitHub<span aria-hidden="true"> ↗</span></a>
           </div>
         </article>
       </li>
     ))}
-  </ol>
+  </ul>
 </div>

@@ -14,7 +14,8 @@
     "check": "astro check && tsc --noEmit --pretty false",
     "test:unit": "vitest run",
     "test:ui": "playwright test",
-    "verify": "npm run check && npm run test:unit && npm run build"
+    "verify": "npm run check && npm run test:unit && npm run build",
+    "verify:all": "npm run verify && npm run test:ui"
   },
   "dependencies": {
     "@fontsource-variable/ibm-plex-sans": "^5.2.8",

@@ -17,16 +17,17 @@ npm run dev
 
 ```sh
 npx playwright install chromium
-npm run verify
-npm run test:ui
+npm run verify:all
 ```
+
+`npm run verify` runs type checks, unit tests, and the production build. The full check also runs browser tests for page content, responsive layout, contrast, and navigation without JavaScript.
 
 ## Site behavior
 
-The Public Code section renders an authored snapshot before JavaScript runs. The client validates GitHub API data and refreshes repository metadata when available; a failed refresh leaves the snapshot intact.
+The Public Code section renders the curated projects from `src/data/site.ts` as static HTML.
 
-The command palette supports filtering and keyboard navigation. Mobile navigation uses native `details` markup, so section and résumé links remain available without JavaScript.
+Mobile navigation uses native `details` markup, so section and résumé links remain available without JavaScript.
 
 ## Deployment
 
-The GitHub Actions workflow checks, tests, and builds the static site before deploying `dist/` to GitHub Pages.
+The GitHub Actions workflow runs the full check, including browser tests, before deploying `dist/` to GitHub Pages.
