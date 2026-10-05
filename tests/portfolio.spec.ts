@@ -64,11 +64,45 @@ test("uses the research-first page order and no runtime search hooks", async ({ 
     await expect(page.locator(`#${id}`)).toHaveCount(1);
   }
 
+  const missingTargets = await page.locator('a[href^="#"]').evaluateAll((links) => links
+    .map((link) => link.getAttribute("href")!)
+    .filter((href) => !document.getElementById(href.slice(1))));
+  expect(missingTargets).toEqual([]);
+
   await expect(page.locator("[data-command-palette], [data-command-trigger], [data-repo-cards]")).toHaveCount(0);
   const requestedUrls = await page.evaluate(() => performance
     .getEntriesByType("resource")
     .map((entry) => entry.name));
   expect(requestedUrls.some((url) => url.includes("api.github.com"))).toBe(false);
+});
+
+test("serves the résumé, portrait, favicon, and production assets", async ({ page, request }) => {
+  const failures: string[] = [];
+  page.on("pageerror", (error) => failures.push(error.message));
+  page.on("requestfailed", (request) => failures.push(request.url()));
+  page.on("response", (response) => {
+    if (response.status() >= 400) failures.push(`${response.status()} ${response.url()}`);
+  });
+  await page.goto("/");
+  await page.evaluate(() => document.fonts.ready);
+
+  const resumePath = await page.locator("#about").getByRole("link", {
+    name: "Résumé", exact: true
+  }).getAttribute("href");
+  const resume = await request.get(resumePath!);
+  expect(resume.ok()).toBe(true);
+  expect(resume.headers()["content-type"]).toContain("application/pdf");
+  expect((await resume.body()).subarray(0, 5).toString()).toBe("%PDF-");
+
+  const portrait = page.getByRole("img", { name: /Hongchen.*portrait/i });
+  expect(await portrait.evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth > 0))
+    .toBe(true);
+
+  const faviconPath = await page.locator('link[rel="icon"]').getAttribute("href");
+  const favicon = await request.get(faviconPath!);
+  expect(favicon.ok()).toBe(true);
+  expect(favicon.headers()["content-type"]).toContain("image/svg+xml");
+  expect(failures).toEqual([]);
 });
 
 test("shows the published paper with a DOI link and bounded role", async ({ page }) => {
@@ -270,7 +304,14 @@ test("keyboard users can skip navigation with reduced motion", async ({ page }) 
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
   await page.keyboard.press("Tab");
-  await expect(page.getByRole("link", { name: "Skip to content" })).toBeFocused();
+  const skipLink = page.getByRole("link", { name: "Skip to content" });
+  await expect(skipLink).toBeFocused();
+  await skipLink.hover();
+  const colors = await skipLink.evaluate((element) => ({
+    text: getComputedStyle(element).color,
+    background: getComputedStyle(element).backgroundColor
+  }));
+  expect(contrastRatio(colors.text, colors.background)).toBeGreaterThanOrEqual(4.5);
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL(/#main-content$/);
   await page.keyboard.press("Tab");

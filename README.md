@@ -1,33 +1,7 @@
-# Personal Website
+# Hongchen (Steven) Yang
 
-Hongchen (Steven) Yang's technical portfolio presents database systems research, engineering work, experience, public code, and contact details.
+[steventimes.github.io](https://steventimes.github.io)
 
-`src/data/site.ts` is the source for visible portfolio facts. Astro components render that content into a static page.
+I'm a computer science student at Brandeis University. I study adaptive storage systems and build AI agent workflows.
 
-## Development
-
-Use Node 22.12 or newer.
-
-```sh
-npm ci
-npm run dev
-```
-
-## Verification
-
-```sh
-npx playwright install chromium
-npm run verify:all
-```
-
-`npm run verify` runs type checks, unit tests, and the production build. The full check also runs browser tests for page content, responsive layout, contrast, and navigation without JavaScript.
-
-## Site behavior
-
-The Public Code section renders the curated projects from `src/data/site.ts` as static HTML.
-
-Mobile navigation uses native `details` markup, so section and résumé links remain available without JavaScript.
-
-## Deployment
-
-The GitHub Actions workflow runs the full check, including browser tests, before deploying `dist/` to GitHub Pages.
+My website includes my research, published paper, internships, and public projects, along with my résumé and contact details.
