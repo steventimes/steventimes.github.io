@@ -62,6 +62,7 @@ export interface PublicProject {
   url: string;
   homepage?: string;
   packageUrl?: string;
+  preview: { label: string; content: string };
 }
 
 export interface OtherWorkItem {
@@ -208,13 +209,21 @@ export const site: Site = {
       language: "Python · Rust",
       url: "https://github.com/steventimes/fpstreams",
       homepage: "https://steventimes.github.io/fpstreams/",
-      packageUrl: "https://pypi.org/project/fpstreams/"
+      packageUrl: "https://pypi.org/project/fpstreams/",
+      preview: {
+        label: "A small pipeline",
+        content: "(flow([1, 2, 3])\n    .filter(lambda n: n > 1)\n    .to_list())\n\n# [2, 3]"
+      }
     },
     {
       name: "dependency-checker",
       description: "A coding-agent skill and MCP interface for inspecting dependencies across language ecosystems. Indexes declarations, resolved versions, source usage, security results, and policy findings.",
       language: "Python",
-      url: "https://github.com/steventimes/dependency-checker"
+      url: "https://github.com/steventimes/dependency-checker",
+      preview: {
+        label: "Follow the evidence",
+        content: "pyproject.toml  →  declarations\nuv.lock         →  locked versions\nsrc/            →  source references"
+      }
     }
   ],
 

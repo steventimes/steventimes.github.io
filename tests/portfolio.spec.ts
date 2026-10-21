@@ -162,7 +162,7 @@ test("renders curated public code and deployment-only other work", async ({ page
   await expect(page.locator('a[href*="github.com/steventimes/software-system-atlas"]')).toHaveCount(0);
 });
 
-test("stacks the related study after the primary research narrative", async ({ page }) => {
+test("emphasizes primary research on desktop and stacks it first on mobile", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto("/");
 
@@ -170,7 +170,14 @@ test("stacks the related study after the primary research narrative", async ({ p
   const secondary = await page.locator(".research-secondary").boundingBox();
   expect(primary).not.toBeNull();
   expect(secondary).not.toBeNull();
-  expect(secondary!.y).toBeGreaterThanOrEqual(primary!.y + primary!.height);
+  expect(primary!.width).toBeGreaterThan(secondary!.width);
+  expect(Math.abs(primary!.y - secondary!.y)).toBeLessThan(2);
+  expect(secondary!.x).toBeGreaterThanOrEqual(primary!.x + primary!.width);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  const mobilePrimary = await page.locator(".research-primary").boundingBox();
+  const mobileSecondary = await page.locator(".research-secondary").boundingBox();
+  expect(mobileSecondary!.y).toBeGreaterThanOrEqual(mobilePrimary!.y + mobilePrimary!.height);
 });
 
 test("uses comfortable contrast for secondary text and structural rules", async ({ page }) => {
@@ -330,8 +337,13 @@ test("JavaScript-disabled mobile navigation keeps section links available", asyn
 
   try {
     await page.goto("/");
+    await page.getByRole("navigation", { name: "Explore my work" })
+      .getByRole("link", { name: "Public code", exact: true }).click();
+    await expect(page.locator("#code h2")).toBeInViewport();
+    expect(await page.evaluate(() => location.hash)).toBe("#code");
+    await page.locator(".site-header__name").click();
     await page.getByText("Menu", { exact: true }).click();
-    await page.getByRole("link", { name: "Experience", exact: true }).click();
+    await page.locator(".site-header__menu").getByRole("link", { name: "Experience", exact: true }).click();
     expect(await page.evaluate(() => location.hash)).toBe("#experience");
     expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
   } finally {

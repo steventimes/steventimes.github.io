@@ -10,6 +10,7 @@ const { featured, supporting } = Astro.props;
 ---
 <div class="experience-layout">
   <article class="experience-feature">
+    <div class="experience-feature__overview">
     <header class="experience-feature__heading">
       <div>
         <p class="section-kicker">Most recent internship</p>
@@ -22,13 +23,14 @@ const { featured, supporting } = Astro.props;
     </header>
 
     <p class="experience-feature__summary">{featured.summary}</p>
-    <ul class="experience-feature__work">
-      {featured.contributions.map((contribution) => <li>{contribution}</li>)}
-    </ul>
     <p class="method-line"><span>Built with</span>{" "}{featured.technologies.join(" · ")}</p>
     <a class="text-link" href={featured.link.href} target="_blank" rel="noreferrer">
       {featured.link.label}<span aria-hidden="true"> ↗</span>
     </a>
+    </div>
+    <ul class="experience-feature__work">
+      {featured.contributions.map((contribution) => <li>{contribution}</li>)}
+    </ul>
   </article>
 
   <div class="supporting-experience">

@@ -19,9 +19,9 @@ import "../styles/global.css";
   <SiteHeader name={site.name} navigation={site.navigation} resumePath={site.resumePath} />
 
   <main id="main-content">
-    <Hero name={site.name} profile={site.profile} />
+    <Hero name={site.name} profile={site.profile} location={site.location} />
 
-    <Section id="research" title="Research">
+    <Section id="research" title="Research" description="Storage systems, changing workloads, and the data behind them.">
       <Research primary={site.research.primary} secondary={site.research.secondary} />
     </Section>
 
@@ -29,15 +29,15 @@ import "../styles/global.css";
       <Publication publication={site.publication} />
     </Section>
 
-    <Section id="experience" title="Experience" variant="band">
+    <Section id="experience" title="Experience" variant="band" description="Building workflows, working with teams, and teaching.">
       <Experience featured={site.featuredExperience} supporting={site.supportingExperience} />
     </Section>
 
-    <Section id="code" title="Public Code">
+    <Section id="code" title="Public Code" description="Tools I build and maintain.">
       <PublicCode projects={site.publicCode} />
     </Section>
 
-    <Section id="other-work" title="Other Work">
+    <Section id="other-work" title="Other Work" description="Privacy research and software-systems learning.">
       <OtherWork items={site.otherWork} />
     </Section>
 
@@ -58,5 +58,6 @@ import "../styles/global.css";
 
   <footer class="site-footer">
     <p>{site.name} · {site.location} · © {new Date().getFullYear()}</p>
+    <a href="#about">Back to top<span aria-hidden="true"> ↑</span></a>
   </footer>
 </BaseLayout>

@@ -4,39 +4,58 @@ import type { Profile } from "../data/site";
 interface Props {
   name: string;
   profile: Profile;
+  location: string;
 }
 
-const { name, profile } = Astro.props;
+const { name, profile, location } = Astro.props;
+const [firstName, ...restOfName] = name.split(" ");
+const familyName = restOfName.pop();
 ---
 <section id="about" class="hero" aria-labelledby="intro-title">
-  <div class="hero__copy">
-    <p class="hero__role">{profile.role}</p>
-    <h1 id="intro-title">{name}</h1>
-    <p class="hero__intro">{profile.intro}</p>
-
-    <div class="hero__actions" aria-label="Primary links">
-      <a href={`mailto:${profile.email}`}>Email</a>
-      <a href={profile.githubUrl} target="_blank" rel="noreferrer">GitHub</a>
-      <a href={profile.resumePath}>Résumé</a>
+  <div class="hero__inner">
+    <div class="hero__copy">
+      <p class="hero__eyebrow">Systems research &amp; applied engineering</p>
+      <h1 id="intro-title">
+        <span class="hero__given-name">{firstName}</span>{" "}
+        <span class="hero__family-name"><span class="hero__nickname">{restOfName.join(" ")}</span>{" "}{familyName}</span>
+      </h1>
+      <p class="hero__role">{profile.role}</p>
+      <p class="hero__intro">{profile.intro}</p>
+      <div class="hero__actions" aria-label="Primary links">
+        <a href={`mailto:${profile.email}`}>Email<span aria-hidden="true"> ↗</span></a>
+        <a href={profile.githubUrl} target="_blank" rel="noreferrer">GitHub</a>
+        <a href={profile.resumePath}>Résumé</a>
+      </div>
     </div>
 
-    <dl class="hero__metadata" aria-label="Education summary">
-      {profile.metadata.map((item) => (
-        <div>
-          <dt>{item.label}</dt>
-          <dd>{item.value}</dd>
+    <div class="hero__aside">
+      <figure class="hero__portrait-frame">
+        <div class="hero__portrait-mat">
+          <img
+            class="hero__portrait"
+            src={profile.photoPath}
+            alt={`${name} portrait`}
+            width="640"
+            height="480"
+            fetchpriority="high"
+          />
         </div>
-      ))}
-    </dl>
-  </div>
+        <figcaption><span class="location-dot" aria-hidden="true"></span>{location}</figcaption>
+      </figure>
+      <dl class="hero__metadata" aria-label="Education summary">
+        {profile.metadata.map((item) => (
+          <div>
+            <dt>{item.label}</dt>
+            <dd>{item.value}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
 
-  <figure class="hero__portrait-frame">
-    <img
-      class="hero__portrait"
-      src={profile.photoPath}
-      alt={`${name} portrait`}
-      width="640"
-      height="480"
-    />
-  </figure>
+    <nav class="hero__directory" aria-label="Explore my work">
+      <a href="#research"><span>Research</span><span aria-hidden="true">↘</span></a>
+      <a href="#code"><span>Public code</span><span aria-hidden="true">↘</span></a>
+      <a href="#experience"><span>Experience</span><span aria-hidden="true">↘</span></a>
+    </nav>
+  </div>
 </section>

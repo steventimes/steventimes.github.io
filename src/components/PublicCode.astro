@@ -14,9 +14,13 @@ const { projects } = Astro.props;
       <li>
         <article class="project-row">
           <div class="project-row__body">
+            <span class="project-row__language">{project.language}</span>
             <h3>{project.name}</h3>
             <p>{project.description}</p>
-            <p class="project-row__language">{project.language}</p>
+          </div>
+          <div class="project-preview">
+            <div class="project-preview__label"><span class="project-preview__dot" aria-hidden="true"></span><span>{project.preview.label}</span></div>
+            <pre><code>{project.preview.content}</code></pre>
           </div>
           <div class="project-row__links">
             {project.packageUrl && (
