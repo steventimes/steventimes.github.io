@@ -162,6 +162,7 @@ a:hover { color: var(--signal-dark); text-decoration-color: currentColor; }
 .other-work-list > li { padding-left: 1.4rem; border-left: 3px solid #899bd2; }
 .other-work-list h3 { margin: 0; font-size: 1.4rem; }
 .other-work-list article > p { margin: 0.8rem 0 0; color: var(--slate); font-size: 1rem; line-height: 1.6; }
+.other-work-list__links { display: flex; flex-wrap: wrap; column-gap: 1.5rem; }
 .technology-matrix { margin: 0; border-top: 1px solid var(--rule); }
 .technology-matrix__row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 3fr); gap: 1.5rem; padding: 0.8rem 0; border-bottom: 1px solid var(--soft-rule); }
 .technology-matrix dt { font-size: 0.95rem; font-weight: 500; }

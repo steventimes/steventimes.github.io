@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="280" viewBox="0 0 1200 280" role="img" aria-labelledby="title desc">
+<title id="title">Hongchen (Steven) Yang</title><desc id="desc">Adaptive storage systems and AI agent workflows. Decorative project artwork.</desc>
+<rect width="1200" height="280" rx="20" fill="#edf3fa"/>
+<rect x="44" y="44" width="6" height="24" rx="3" fill="#386485"/>
+<text x="64" y="62" fill="#386485" font-family="Arial, sans-serif" font-size="14" letter-spacing="3">PERSONAL WEBSITE</text>
+<text x="44" y="135" fill="#17324d" font-family="Arial, sans-serif" font-size="44" font-weight="700">Hongchen (Steven) Yang</text>
+<text x="44" y="180" fill="#425d73" font-family="Arial, sans-serif" font-size="19">Adaptive storage systems and AI agent workflows.</text>
+<path d="M44 225h745" stroke="#b9cbd9"/>
+<g fill="none" stroke="#386485" stroke-width="2" opacity="0.65"><rect x="902" y="45" width="112" height="88" rx="12"/><path d="M922 71h53M922 88h72M922 105h38"/><rect x="1032" y="45" width="112" height="88" rx="12"/><path d="M1052 71h53M1052 88h72M1052 105h38"/><rect x="902" y="151" width="112" height="88" rx="12"/><path d="M922 177h53M922 194h72M922 211h38"/><rect x="1032" y="151" width="112" height="88" rx="12"/><path d="M1052 177h53M1052 194h72M1052 211h38"/></g>
+</svg>

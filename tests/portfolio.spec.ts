@@ -38,12 +38,12 @@ test("renders the research-first hero and research hierarchy", async ({ page }) 
 
   await expect(page.getByRole("heading", {
     level: 3,
-    name: "FluidLSM and workload-aware RocksDB tuning"
+    name: "FluidLSM and adaptive RocksDB tuning"
   })).toBeVisible();
   await expect(page.locator(".research-trace")).toHaveCount(0);
   await expect(page.getByRole("heading", {
     level: 3,
-    name: "Data fragmentation and text-to-SQL evaluation"
+    name: "Data fragmentation and SQL generation from text"
   })).toBeVisible();
 });
 
@@ -117,7 +117,7 @@ test("shows the published paper with a DOI link and bounded role", async ({ page
     "href",
     "https://doi.org/10.1007/978-3-032-23708-8_8"
   );
-  await expect(publication.getByText("Third author; contributed in a supporting role.", { exact: true }))
+  await expect(publication.getByText("Third author. Contributed in a supporting role.", { exact: true }))
     .toBeVisible();
 });
 
@@ -127,7 +127,7 @@ test("features the latest internship and keeps its code link in context", async 
   const internship = page.locator(".experience-feature");
   await expect(internship.getByRole("heading", { name: "AI Development Intern" })).toBeVisible();
   await expect(internship.getByText("Hefei City Cloud Data Center Co., Ltd.", { exact: true })).toBeVisible();
-  await expect(internship.getByText("Jun 2026 – Aug 2026", { exact: true })).toBeVisible();
+  await expect(internship.getByText("Jun 2026 to Aug 2026", { exact: true })).toBeVisible();
   await expect(internship.getByRole("link", {
     name: /View reimbursement workflow code/
   })).toHaveAttribute("href", "https://github.com/steventimes/Email-project-yudao");
@@ -136,7 +136,7 @@ test("features the latest internship and keeps its code link in context", async 
   await expect(page.locator("#code").getByText("Email-project-yudao", { exact: true })).toHaveCount(0);
 });
 
-test("renders curated public code and deployment-only other work", async ({ page }) => {
+test("renders curated public code and Notebook Git Marks links", async ({ page }) => {
   await page.goto("/");
 
   const projects = page.locator("#code .project-row");
@@ -152,14 +152,22 @@ test("renders curated public code and deployment-only other work", async ({ page
     "https://steventimes.github.io/fpstreams/"
   );
   await expect(projects.nth(1).getByRole("heading", { name: "dependency-checker" })).toBeVisible();
-  await expect(projects.nth(1)).toContainText("coding-agent skill");
+  await expect(projects.nth(1)).toContainText("skill and MCP interface for coding agents");
   await expect(page.locator("#code").getByText(/soccer-analytics|Prompt-Testing-Framework|high-ed-data-generator/)).toHaveCount(0);
 
-  await expect(page.getByRole("link", { name: /Open Software Systems Atlas/ })).toHaveAttribute(
+  const otherWork = page.locator("#other-work");
+  const notebook = otherWork.getByRole("article").filter({ has: page.getByRole("heading", { name: "Jupyter Notebook Git Marks" }) });
+  await expect(notebook.getByRole("heading", { name: "Jupyter Notebook Git Marks" })).toBeVisible();
+  await expect(notebook.getByRole("link", { name: /VS Code Marketplace/ })).toHaveAttribute(
     "href",
-    "https://software-systems-atlas.pages.dev"
+    "https://marketplace.visualstudio.com/items?itemName=StevenYang0316-5274.notebook-git-gutter"
   );
-  await expect(page.locator('a[href*="github.com/steventimes/software-system-atlas"]')).toHaveCount(0);
+  await expect(notebook.getByRole("link", { name: /GitHub/ })).toHaveAttribute(
+    "href", "https://github.com/steventimes/git-for-jupyterNotebook"
+  );
+  await expect(otherWork.getByRole("link", { name: /Read the Blacklight update/ })).toBeVisible();
+  await expect(page.getByText("Software Systems Atlas", { exact: true })).toHaveCount(0);
+  await expect(page.locator('a[href*="software-systems-atlas"]')).toHaveCount(0);
 });
 
 test("emphasizes primary research on desktop and stacks it first on mobile", async ({ page }) => {
@@ -227,7 +235,7 @@ test("brings primary research into the first desktop viewport", async ({ page })
 
   const title = page.getByRole("heading", {
     level: 3,
-    name: "FluidLSM and workload-aware RocksDB tuning"
+    name: "FluidLSM and adaptive RocksDB tuning"
   });
   const box = await title.boundingBox();
   expect(box).not.toBeNull();

@@ -22,19 +22,22 @@ describe("portfolio content boundaries", () => {
   });
 
   it("marks the completed 2026 Brandeis roles with their end dates", () => {
-    expect(site.research.secondary.time).toBe("Jan 2026 – May 2026");
+    expect(site.research.secondary.time).toBe("Jan 2026 to May 2026");
     expect(site.supportingExperience.find((item) => item.title.startsWith("Teaching Assistant"))?.time)
-      .toBe("Jan 2026 – May 2026");
+      .toBe("Jan 2026 to May 2026");
   });
 
   it("links the published paper by DOI and states the contribution boundary", () => {
     expect(site.publication.url).toBe("https://doi.org/10.1007/978-3-032-23708-8_8");
-    expect(site.publication.role).toBe("Third author; contributed in a supporting role.");
+    expect(site.publication.role).toBe("Third author. Contributed in a supporting role.");
   });
 
-  it("publishes only the Software Systems Atlas deployment", () => {
-    const atlas = site.otherWork.find((item) => item.id === "software-systems-atlas");
-    expect(atlas?.link.href).toBe("https://software-systems-atlas.pages.dev");
-    expect(atlas?.link.href).not.toContain("github.com");
+  it("replaces Atlas with Notebook Git Marks and its installation and source links", () => {
+    expect(site.otherWork.map((item) => item.id)).toEqual(["blacklight", "notebook-git-marks"]);
+    const notebook = site.otherWork.find((item) => item.id === "notebook-git-marks");
+    expect(notebook?.links.map((link) => link.href)).toEqual([
+      "https://marketplace.visualstudio.com/items?itemName=StevenYang0316-5274.notebook-git-gutter",
+      "https://github.com/steventimes/git-for-jupyterNotebook"
+    ]);
   });
 });
