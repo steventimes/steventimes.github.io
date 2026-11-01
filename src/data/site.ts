@@ -128,7 +128,6 @@ export const site: Site = {
     email: "stevenyang0316@gmail.com",
     githubUrl: "https://github.com/steventimes",
     metadata: [
-      { label: "Institution", value: "Brandeis University" },
       { label: "Degree", value: "B.S. Computer Science" },
       { label: "Graduation", value: "Expected December 2026" },
       { label: "Academic record", value: "GPA 3.748 / 4.0. Dean's List every completed semester." }
