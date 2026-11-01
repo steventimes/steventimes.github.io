@@ -1,5 +1,11 @@
 import { defineConfig, devices } from "@playwright/test";
 
+export const previewServer = {
+  command: "npm run build && node tests/preview.mjs",
+  url: "http://127.0.0.1:4322",
+  timeout: 120_000
+};
+
 export default defineConfig({
   testDir: "./tests",
   outputDir: "/tmp/steven-portfolio-playwright",
@@ -13,9 +19,5 @@ export default defineConfig({
   projects: [
     { name: "chromium", use: { ...devices["Desktop Chrome"] } }
   ],
-  webServer: {
-    command: "npm run build && node tests/preview.mjs",
-    url: "http://127.0.0.1:4322",
-    timeout: 120_000
-  }
+  webServer: previewServer
 });

@@ -15,7 +15,8 @@
     "test:unit": "vitest run",
     "test:ui": "playwright test",
     "verify": "npm run check && npm run test:unit && npm run build",
-    "verify:all": "npm run verify && npm run test:ui"
+    "verify:all": "npm run verify && npm run test:ui:built",
+    "test:ui:built": "playwright test --config playwright.built.config.ts"
   },
   "dependencies": {
     "@fontsource-variable/ibm-plex-sans": "^5.2.8",

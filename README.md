@@ -10,6 +10,16 @@ systems and build AI agent workflows.
 [Visit my website](https://steventimes.github.io) for my research, published
 paper, internships, public projects, résumé, and contact details.
 
+## Recent changes
+
+The homepage uses a light background with dark text. Research and projects have
+direct links. Research links and the fpstreams example can be copied. The example
+remains readable without JavaScript.
+
+Mobile navigation closes when focus leaves the menu. Browser checks cover
+keyboard navigation, reduced motion, and narrow screens. Deployment uses the same
+build that passed the required checks.
+
 ## Local development
 
 The site uses Astro and TypeScript. Use Node.js `^22.19.0 || >=24.0.0` and
@@ -43,10 +53,11 @@ consistent when editing the site.
 ## Verification
 
 ```bash
-npm run verify
-npm run test:ui
+npm run verify:all
 ```
 
-`verify` runs Astro/TypeScript checks, unit tests, and a production build.
-`test:ui` runs the separate Playwright browser checks and needs its browser
-runtime. Local checks do not publish the website.
+`verify:all` runs Astro/TypeScript checks, unit tests, one production build, and
+Playwright checks against that build. The browser runtime must already be available.
+Use `npm run verify` without browser checks, `npm run test:ui:built` to check an
+existing build, or `npm run test:ui` to build and check the UI on its own.
+Local checks do not publish the website.

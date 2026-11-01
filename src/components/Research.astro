@@ -22,19 +22,16 @@ const { primary, secondary } = Astro.props;
     </header>
 
     <p class="research-summary">{primary.summary}</p>
-
-    <dl class="research-details">
-      <div>
-        <dt>Research question</dt>
-        <dd>{primary.question}</dd>
-      </div>
-      <div>
-        <dt>Current work</dt>
-        <dd>{primary.contribution}</dd>
-      </div>
-    </dl>
-
-    <p class="method-line"><span>Methods</span>{" "}{primary.methods.join(" · ")}</p>
+    <div class="research-details">
+      <p class="research-question">{primary.question}</p>
+      <p>{primary.contribution}</p>
+    </div>
+    <p class="method-line">{primary.methods.join(" · ")}</p>
+    <div class="research-share">
+      <a href={`#${primary.id}`} aria-label={`Link to ${primary.title}`}>Link to research</a>
+      <button type="button" hidden aria-label={`Copy link to ${primary.title}`}>Copy link</button>
+      <p role="status"></p>
+    </div>
   </article>
 
   <article id={secondary.id} class="research-secondary">
@@ -50,16 +47,36 @@ const { primary, secondary } = Astro.props;
     </header>
 
     <p class="research-summary">{secondary.summary}</p>
-    <dl class="research-details research-details--compact">
-      <div>
-        <dt>Question</dt>
-        <dd>{secondary.question}</dd>
-      </div>
-      <div>
-        <dt>Work</dt>
-        <dd>{secondary.contribution}</dd>
-      </div>
-    </dl>
-    <p class="method-line"><span>Methods</span>{" "}{secondary.methods.join(" · ")}</p>
+    <div class="research-details">
+      <p>{secondary.question}</p>
+      <p>{secondary.contribution}</p>
+    </div>
+    <p class="method-line">{secondary.methods.join(" · ")}</p>
+    <div class="research-share">
+      <a href={`#${secondary.id}`} aria-label={`Link to ${secondary.title}`}>Link to research</a>
+      <button type="button" hidden aria-label={`Copy link to ${secondary.title}`}>Copy link</button>
+      <p role="status"></p>
+    </div>
   </article>
 </div>
+
+<script>
+  document.querySelectorAll<HTMLElement>(".research-share").forEach((share) => {
+    const link = share.querySelector<HTMLAnchorElement>("a")!;
+    const button = share.querySelector<HTMLButtonElement>("button")!;
+    const status = share.querySelector<HTMLElement>("[role=status]")!;
+    button.hidden = false;
+    button.addEventListener("click", async () => {
+      if (!navigator.clipboard?.writeText) {
+        status.textContent = "Copy unavailable. Use the research link to copy it.";
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(link.href);
+        status.textContent = "Link copied.";
+      } catch {
+        status.textContent = "Copy failed. Use the research link to copy it.";
+      }
+    });
+  });
+</script>

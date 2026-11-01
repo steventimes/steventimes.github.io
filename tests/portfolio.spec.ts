@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { site } from "../src/data/site";
 
 const contrastRatio = (foreground: string, background: string) => {
   const parse = (color: string) => color.match(/\d+(?:\.\d+)?/g)!.slice(0, 3).map(Number);
@@ -20,34 +21,78 @@ test("renders the research-first hero and research hierarchy", async ({ page }) 
   const introduction = page.locator("#about");
   await expect(introduction.getByRole("heading", {
     level: 1,
-    name: "Hongchen (Steven) Yang"
+    name: site.name
   })).toHaveCount(1);
   await expect(introduction.getByText(
-    "I study adaptive storage systems and build AI agent workflows.",
+    site.profile.intro,
     { exact: true }
   )).toBeVisible();
-  await expect(introduction.getByText("Hero", { exact: true })).toHaveCount(0);
   await expect(introduction.getByRole("link", { name: "Email", exact: true })).toHaveAttribute("href", /^mailto:/);
   await expect(introduction.getByRole("link", { name: "GitHub", exact: true })).toHaveAttribute(
     "href",
-    "https://github.com/steventimes"
+    site.profile.githubUrl
   );
-  await expect(introduction.getByRole("link", { name: "Résumé", exact: true })).toHaveAttribute("href", "/resume.pdf");
+  await expect(introduction.getByRole("link", { name: "Résumé", exact: true })).toHaveAttribute("href", site.profile.resumePath);
   await expect(introduction.getByText("B.S. Computer Science", { exact: true })).toBeVisible();
-  await expect(introduction.getByText("Mathematics minor", { exact: true })).toHaveCount(0);
 
   await expect(page.getByRole("heading", {
     level: 3,
-    name: "FluidLSM and adaptive RocksDB tuning"
+    name: site.research.primary.title
   })).toBeVisible();
-  await expect(page.locator(".research-trace")).toHaveCount(0);
   await expect(page.getByRole("heading", {
     level: 3,
-    name: "Data fragmentation and SQL generation from text"
+    name: site.research.secondary.title
   })).toBeVisible();
 });
 
-test("uses the research-first page order and no runtime search hooks", async ({ page }) => {
+test("copies a research deep link with keyboard and reports clipboard failure", async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "clipboard", {
+      value: { writeText: async (text: string) => { (window as any).sharedLink = text; } }, configurable: true
+    });
+  });
+  await page.setViewportSize({ width: 320, height: 844 });
+  await page.goto("/?source=portfolio#research");
+  const research = page.locator("#fluidlsm");
+  const link = research.getByRole("link", { name: /Link to FluidLSM/ });
+  const button = research.getByRole("button", { name: /Copy link to FluidLSM/ });
+  await link.focus();
+  await page.keyboard.press("Tab");
+  await expect(button).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(research.getByRole("status")).toHaveText("Link copied.");
+  expect(await page.evaluate(() => (window as any).sharedLink)).toBe(`${new URL(page.url()).origin}/?source=portfolio#fluidlsm`);
+  await expect(button).toBeFocused();
+  await page.evaluate(() => Object.defineProperty(navigator, "clipboard", { value: { writeText: () => Promise.reject(new Error("denied")) }, configurable: true }));
+  await button.click();
+  await expect(research.getByRole("status")).toHaveText("Copy failed. Use the research link to copy it.");
+  await expect(button).toBeFocused();
+  await page.evaluate(() => Object.defineProperty(navigator, "clipboard", { value: undefined, configurable: true }));
+  await button.click();
+  await expect(research.getByRole("status")).toHaveText("Copy unavailable. Use the research link to copy it.");
+  await expect(link).toHaveAttribute("href", "#fluidlsm");
+});
+
+test("research deep links locate their content with JavaScript disabled", async ({ browser }) => {
+  const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 320, height: 844 }, reducedMotion: "reduce" });
+  const page = await context.newPage();
+  for (const id of ["fluidlsm", "fragmented-data"]) {
+    await page.goto(`/#${id}`);
+    const article = page.locator(`#${id}`);
+    await expect(article.getByRole("link", { name: /Link to/ })).toHaveAttribute("href", `#${id}`);
+    await expect(article.getByRole("button", { name: /Copy link/ })).toHaveCount(0);
+    const position = await article.locator("h3").evaluate((heading) => ({
+      top: heading.getBoundingClientRect().top,
+      header: document.querySelector(".site-header")!.getBoundingClientRect().bottom
+    }));
+    expect(position.top).toBeGreaterThanOrEqual(position.header);
+    expect(position.top).toBeLessThan(844);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
+  }
+  await context.close();
+});
+
+test("keeps section order, unique anchors and valid fragment destinations", async ({ page }) => {
   await page.goto("/");
 
   expect(await page.locator("main h2").allTextContents()).toEqual([
@@ -69,7 +114,6 @@ test("uses the research-first page order and no runtime search hooks", async ({ 
     .filter((href) => !document.getElementById(href.slice(1))));
   expect(missingTargets).toEqual([]);
 
-  await expect(page.locator("[data-command-palette], [data-command-trigger], [data-repo-cards]")).toHaveCount(0);
   const requestedUrls = await page.evaluate(() => performance
     .getEntriesByType("resource")
     .map((entry) => entry.name));
@@ -105,69 +149,140 @@ test("serves the résumé, portrait, favicon, and production assets", async ({ p
   expect(failures).toEqual([]);
 });
 
-test("shows the published paper with a DOI link and bounded role", async ({ page }) => {
+test("renders the authored publication and internship in context", async ({ page }) => {
   await page.goto("/");
-
   const publication = page.locator("#publication");
-  await expect(publication.getByRole("heading", {
-    level: 3,
-    name: "From Single-View to Multi-view: Learning Informative Graphs for Robust Subspace Segmentation"
-  })).toBeVisible();
-  await expect(publication.getByRole("link", { name: /View paper/ })).toHaveAttribute(
-    "href",
-    "https://doi.org/10.1007/978-3-032-23708-8_8"
-  );
-  await expect(publication.getByText("Third author. Contributed in a supporting role.", { exact: true }))
-    .toBeVisible();
-});
-
-test("features the latest internship and keeps its code link in context", async ({ page }) => {
-  await page.goto("/");
+  await expect(publication.getByRole("heading", { level: 3, name: site.publication.title })).toBeVisible();
+  await expect(publication.getByRole("link", { name: /View paper/ })).toHaveAttribute("href", site.publication.url);
+  await expect(publication.getByText(site.publication.role, { exact: true })).toBeVisible();
 
   const internship = page.locator(".experience-feature");
-  await expect(internship.getByRole("heading", { name: "AI Development Intern" })).toBeVisible();
-  await expect(internship.getByText("Hefei City Cloud Data Center Co., Ltd.", { exact: true })).toBeVisible();
-  await expect(internship.getByText("Jun 2026 to Aug 2026", { exact: true })).toBeVisible();
-  await expect(internship.getByRole("link", {
-    name: /View reimbursement workflow code/
-  })).toHaveAttribute("href", "https://github.com/steventimes/Email-project-yudao");
-  await expect(internship.locator(".experience-feature__work > li")).toHaveCount(3);
-  await expect(page.locator(".experience-list > li")).toHaveCount(2);
-  await expect(page.locator("#code").getByText("Email-project-yudao", { exact: true })).toHaveCount(0);
+  await expect(internship.getByRole("heading", { name: site.featuredExperience.title })).toBeVisible();
+  await expect(internship.getByText(site.featuredExperience.organization, { exact: true })).toBeVisible();
+  await expect(internship.getByText(site.featuredExperience.time, { exact: true })).toBeVisible();
+  await expect(internship.getByRole("link", { name: site.featuredExperience.link.label }))
+    .toHaveAttribute("href", site.featuredExperience.link.href);
+  await expect(internship.locator(".experience-feature__work > li"))
+    .toHaveText(site.featuredExperience.contributions);
+  for (const item of site.supportingExperience) {
+    const article = page.locator(".experience-list article").filter({
+      has: page.getByRole("heading", { name: item.title })
+    });
+    await expect(article.getByText(item.time, { exact: true })).toBeVisible();
+  }
 });
 
-test("renders curated public code and Notebook Git Marks links", async ({ page }) => {
+test("renders the curated public projects and their destinations", async ({ page }) => {
   await page.goto("/");
-
   const projects = page.locator("#code .project-row");
-  await expect(projects).toHaveCount(2);
-  await expect(page.locator("#code").getByText("Maintained public projects.", { exact: true })).toBeVisible();
-  await expect(projects.nth(0).getByRole("heading", { name: "fpstreams" })).toBeVisible();
-  await expect(projects.nth(0).getByRole("link", { name: /PyPI/ })).toHaveAttribute(
-    "href",
-    "https://pypi.org/project/fpstreams/"
-  );
-  await expect(projects.nth(0).getByRole("link", { name: /Docs/ })).toHaveAttribute(
-    "href",
-    "https://steventimes.github.io/fpstreams/"
-  );
-  await expect(projects.nth(1).getByRole("heading", { name: "dependency-checker" })).toBeVisible();
-  await expect(projects.nth(1)).toContainText("skill and MCP interface for coding agents");
-  await expect(page.locator("#code").getByText(/soccer-analytics|Prompt-Testing-Framework|high-ed-data-generator/)).toHaveCount(0);
+  await expect(projects).toHaveCount(site.publicCode.length);
+  for (const [index, project] of site.publicCode.entries()) {
+    const row = projects.nth(index);
+    await expect(row.getByRole("heading", { name: project.name })).toBeVisible();
+    await expect(row.getByText(project.description, { exact: true })).toBeVisible();
+    for (const [label, href] of [["PyPI", project.packageUrl], ["Docs", project.homepage], ["GitHub", project.url], ["XERJ Hub", project.corpusUrl]] as const) {
+      if (href) {
+        const name = label === "Docs" ? `${project.name} Docs` : `${project.name} on ${label}`;
+        await expect(row.getByRole("link", { name, exact: true })).toHaveAttribute("href", href);
+      }
+    }
+    if (project.preview.kind === "code") {
+      await expect(row.locator("pre code")).toHaveText(project.preview.content);
+    } else {
+      await expect(row.locator(".project-evidence dt")).toHaveText(project.preview.items.map((item) => item.source));
+      await expect(row.locator(".project-evidence dd")).toHaveText(project.preview.items.map((item) => item.purpose));
+    }
+  }
+  await expect(page.locator("#other-work article")).toHaveCount(site.otherWork.length);
+  for (const item of site.otherWork) {
+    const article = page.locator(`#${item.id}`);
+    await expect(article.getByRole("heading", { name: item.title })).toBeVisible();
+    for (const link of item.links) {
+      await expect(article.getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
+    }
+  }
+});
 
-  const otherWork = page.locator("#other-work");
-  const notebook = otherWork.getByRole("article").filter({ has: page.getByRole("heading", { name: "Jupyter Notebook Git Marks" }) });
-  await expect(notebook.getByRole("heading", { name: "Jupyter Notebook Git Marks" })).toBeVisible();
-  await expect(notebook.getByRole("link", { name: /VS Code Marketplace/ })).toHaveAttribute(
-    "href",
-    "https://marketplace.visualstudio.com/items?itemName=StevenYang0316-5274.notebook-git-gutter"
-  );
-  await expect(notebook.getByRole("link", { name: /GitHub/ })).toHaveAttribute(
-    "href", "https://github.com/steventimes/git-for-jupyterNotebook"
-  );
-  await expect(otherWork.getByRole("link", { name: /Read the Blacklight update/ })).toBeVisible();
-  await expect(page.getByText("Software Systems Atlas", { exact: true })).toHaveCount(0);
-  await expect(page.locator('a[href*="software-systems-atlas"]')).toHaveCount(0);
+test("copies the complete example by click and keyboard without moving focus", async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "clipboard", {
+      value: { writeText: async (text: string) => { (window as any).copiedText = text; } }
+    });
+  });
+  await page.goto("/");
+  const button = page.getByRole("button", { name: "Copy code" });
+  const status = page.locator(".project-example__status");
+  const preview = site.publicCode.find((project) => project.preview.kind === "code")!.preview;
+  if (preview.kind !== "code") throw new Error("Missing code example");
+  const expected = preview.content;
+  await page.getByRole("link", { name: /View reimbursement workflow code/ }).focus();
+  await page.keyboard.press("Tab");
+  await expect(page.locator("#fpstreams").getByRole("link", { name: "fpstreams", exact: true })).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(button).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(status).toHaveText("Code copied.");
+  expect(await page.evaluate(() => (window as any).copiedText)).toBe(expected);
+  await expect(button).toBeFocused();
+  await page.evaluate(() => { (window as any).copiedText = null; });
+  await button.click();
+  await expect(status).toHaveText("Code copied.");
+  expect(await page.evaluate(() => (window as any).copiedText)).toBe(expected);
+  await expect(button).toBeFocused();
+});
+
+test("work titles provide stable deep links without JavaScript", async ({ browser }) => {
+  const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 320, height: 800 }, reducedMotion: "reduce" });
+  const page = await context.newPage();
+  for (const id of ["fpstreams", "dependency-checker", "blacklight", "notebook-git-marks"]) {
+    await page.goto(`/#${id}`);
+    await page.evaluate(() => document.fonts.ready);
+    const heading = page.locator(`#${id} h3`);
+    await expect(heading.getByRole("link")).toHaveAttribute("href", `#${id}`);
+    const position = await heading.evaluate((element) => ({
+      top: element.getBoundingClientRect().top,
+      header: document.querySelector(".site-header")!.getBoundingClientRect().bottom
+    }));
+    expect(position.top).toBeGreaterThanOrEqual(position.header);
+    expect(position.top).toBeLessThan(800);
+    await heading.getByRole("link").focus();
+    await page.keyboard.press("Enter");
+    await expect(page).toHaveURL(new RegExp(`#${id}$`));
+  }
+  await context.close();
+});
+
+test("explains rejected and unavailable clipboard access", async ({ browser }) => {
+  for (const mode of ["rejected", "unavailable"] as const) {
+    const page = await browser.newPage();
+    await page.addInitScript((mode) => {
+      Object.defineProperty(navigator, "clipboard", {
+        value: mode === "rejected" ? { writeText: () => Promise.reject(new Error("denied")) } : undefined
+      });
+    }, mode);
+    await page.goto("/");
+    const button = page.getByRole("button", { name: "Copy code" });
+    await button.focus();
+    await page.keyboard.press("Space");
+    await expect(page.locator(".project-example__status")).toHaveText(
+      mode === "rejected" ? "Copy failed. Select the code to copy it." : "Copy unavailable. Select the code to copy it."
+    );
+    await expect(button).toBeFocused();
+    await page.close();
+  }
+});
+
+test("keeps code selectable without a nonfunctional copy button when JavaScript is disabled", async ({ browser }) => {
+  const preview = site.publicCode.find((project) => project.preview.kind === "code")!.preview;
+  if (preview.kind !== "code") throw new Error("Missing code example");
+  const context = await browser.newContext({ javaScriptEnabled: false });
+  const page = await context.newPage();
+  await page.goto("/");
+  await expect(page.getByRole("button", { name: "Copy code" })).toHaveCount(0);
+  await expect(page.locator(".project-example pre code")).toBeVisible();
+  await expect(page.locator(".project-example pre code")).toHaveText(preview.content);
+  expect(await page.locator(".project-example pre code").evaluate((element) => getComputedStyle(element).userSelect)).not.toBe("none");
+  await context.close();
 });
 
 test("emphasizes primary research on desktop and stacks it first on mobile", async ({ page }) => {
@@ -200,6 +315,23 @@ test("uses comfortable contrast for secondary text and structural rules", async 
   expect(contrastRatio(colors.text, colors.page)).toBeGreaterThanOrEqual(7);
   expect(contrastRatio(colors.rule, colors.page)).toBeGreaterThanOrEqual(1.5);
 
+  for (const [selector, surface] of [
+    [".site-header__name", ".site-header"],
+    [".hero__role", ".hero"],
+    [".hero__directory-text > span", ".hero"],
+    [".project-row__body > p", "#code"],
+    [".project-evidence dd", "#code"],
+    [".project-example pre", ".project-example pre"],
+    [".project-example__copy", ".project-example__copy"],
+    [".contact-block__email", "#contact"]
+  ]) {
+    const colors = await page.locator(selector).first().evaluate((element, surface) => ({
+      text: getComputedStyle(element).color,
+      background: getComputedStyle(document.querySelector(surface)!).backgroundColor
+    }), surface);
+    expect(contrastRatio(colors.text, colors.background), selector).toBeGreaterThanOrEqual(4.5);
+  }
+
   const portrait = await page.getByRole("img", { name: /Hongchen.*portrait/i }).boundingBox();
   expect(portrait).not.toBeNull();
   expect(portrait!.width).toBeGreaterThan(220);
@@ -213,7 +345,7 @@ test("keeps supporting text at readable sizes", async ({ page }) => {
   const minimumSizes: Array<[string, number]> = [
     [".site-header__links a", 13],
     [".hero__role", 12],
-    [".research-details dd", 16],
+    [".research-details p", 16],
     [".method-line", 13],
     [".experience-list article > p:last-child", 15],
     [".project-row__body > p", 16],
@@ -235,7 +367,7 @@ test("brings primary research into the first desktop viewport", async ({ page })
 
   const title = page.getByRole("heading", {
     level: 3,
-    name: "FluidLSM and adaptive RocksDB tuning"
+    name: site.research.primary.title
   });
   const box = await title.boundingBox();
   expect(box).not.toBeNull();
@@ -246,7 +378,7 @@ test("brings primary research into the first desktop viewport", async ({ page })
 test("keeps labels readable to assistive technology", async ({ page }) => {
   await page.goto("/");
 
-  await expect(page.locator(".research-primary .method-line")).toContainText("Methods RocksDB");
+  await expect(page.locator(".research-primary .method-line")).toContainText("RocksDB · LSM trees");
   await expect(page.locator(".experience-feature .method-line")).toContainText("Built with Java");
 });
 
@@ -310,6 +442,15 @@ test("mobile menu supports dismissal and section navigation", async ({ page }) =
   await expect(menu).not.toHaveAttribute("open");
   await expect(page.locator("#research h2")).toBeInViewport();
 
+  await toggle.focus();
+  await page.keyboard.press("Enter");
+  for (let i = 0; i < 7; i++) await page.keyboard.press("Tab");
+  const email = page.locator("#about").getByRole("link", { name: "Email", exact: true });
+  await expect(email).toBeFocused();
+  await expect(menu).not.toHaveAttribute("open");
+  await page.keyboard.press("Escape");
+  await expect(email).toBeFocused();
+
   await toggle.click();
   await page.locator(".site-header__name").click();
   await expect(menu).not.toHaveAttribute("open");
@@ -356,5 +497,30 @@ test("JavaScript-disabled mobile navigation keeps section links available", asyn
     expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
   } finally {
     await context.close();
+  }
+});
+
+
+test("keeps section text within mobile pages at doubled browser text size", async ({ page }) => {
+  const session = await page.context().newCDPSession(page);
+  await session.send("Page.setFontSizes", { fontSizes: { standard: 32 } });
+  for (const width of [390, 320]) {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto("/");
+    await page.evaluate(() => document.fonts.ready);
+    await expect(page.locator("html")).toHaveCSS("font-size", "32px");
+    const name = await page.locator(".site-header__name").boundingBox();
+    const menu = await page.locator("summary").boundingBox();
+    expect(name!.x + name!.width).toBeLessThanOrEqual(menu!.x);
+
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
+    for (const selector of [".hero h1", "#publication h2", "#experience h2", ".project-evidence dt", ".project-evidence dd", ".site-footer a"]) {
+      const rightEdges = await page.locator(selector).evaluateAll((elements) => elements.map((element) => {
+        const range = document.createRange();
+        range.selectNodeContents(element);
+        return range.getBoundingClientRect().right;
+      }));
+      for (const right of rightEdges) expect(right, selector).toBeLessThanOrEqual(width);
+    }
   }
 });

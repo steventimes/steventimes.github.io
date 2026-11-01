@@ -10,8 +10,8 @@ const { items } = Astro.props;
 <ol class="other-work-list">
   {items.map((item) => (
     <li>
-      <article>
-        <h3>{item.title}</h3>
+      <article id={item.id}>
+        <h3><a class="work-title-link" href={`#${item.id}`} title={`Link to ${item.title}`}>{item.title}<span class="work-title-link__mark" aria-hidden="true">#</span></a></h3>
         <p>{item.description}</p>
         <div class="other-work-list__links">
           {item.links.map((link) => (

@@ -3,26 +3,35 @@ name: Deploy Astro to GitHub Pages
 on:
   push:
     branches: [ "main", "master" ]
+    paths-ignore:
+      - README.md
+      - PLAN.md
+      - .github/readme/**
+      - docs/**
+      - output/**
   workflow_dispatch:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: "pages"
-  cancel-in-progress: true
 
 env:
   ASTRO_TELEMETRY_DISABLED: "1"
 
 jobs:
   build:
+    permissions:
+      contents: read
+      pages: read
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    concurrency:
+      group: pages-build-${{ github.ref }}
+      cancel-in-progress: true
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -33,11 +42,20 @@ jobs:
       - name: Install
         run: npm ci --ignore-scripts
 
+      - name: Determine browser impact
+        id: impact
+        run: node scripts/browser-impact.mjs
+
+      - name: Verify and build once
+        run: npm run verify
+
       - name: Install browser
+        if: steps.impact.outputs.browser == 'true'
         run: npx playwright install --with-deps chromium
 
-      - name: Verify
-        run: npm run verify:all
+      - name: Verify built UI
+        if: steps.impact.outputs.browser == 'true'
+        run: npm run test:ui:built
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -46,10 +64,19 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./dist
+          retention-days: 1
 
   deploy:
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     needs: build
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    concurrency:
+      group: pages
+      cancel-in-progress: false
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

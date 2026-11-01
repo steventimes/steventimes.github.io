@@ -8,19 +8,36 @@ interface Props {
 const { projects } = Astro.props;
 ---
 <div class="public-code">
-  <p class="public-code__intro">Maintained public projects.</p>
+  <p class="public-code__intro">Try the example, read the documentation, or explore the source.</p>
   <ul class="project-list">
     {projects.map((project) => (
       <li>
-        <article class="project-row">
+        <article id={project.name} class="project-row">
           <div class="project-row__body">
             <span class="project-row__language">{project.language}</span>
-            <h3>{project.name}</h3>
+            <h3><a class="work-title-link" href={`#${project.name}`} title={`Link to ${project.name}`}>{project.name}<span class="work-title-link__mark" aria-hidden="true">#</span></a></h3>
             <p>{project.description}</p>
           </div>
-          <div class="project-preview">
-            <div class="project-preview__label"><span class="project-preview__dot" aria-hidden="true"></span><span>{project.preview.label}</span></div>
-            <pre><code>{project.preview.content}</code></pre>
+          <div class="project-example">
+            {project.preview.kind === "code" ? (
+              <>
+                <div class="project-example__header">
+                  <p class="project-example__label">{project.preview.label}</p>
+                  <button class="project-example__copy" type="button" hidden>Copy code</button>
+                </div>
+                <pre><code>{project.preview.content}</code></pre>
+                <p class="project-example__status" role="status"></p>
+              </>
+            ) : (
+              <>
+                <p class="project-example__label">{project.preview.label}</p>
+                <dl class="project-evidence">
+                  {project.preview.items.map((item) => (
+                    <div><dt><code>{item.source}</code></dt><dd>{item.purpose}</dd></div>
+                  ))}
+                </dl>
+              </>
+            )}
           </div>
           <div class="project-row__links">
             {project.packageUrl && (
@@ -29,6 +46,9 @@ const { projects } = Astro.props;
             {project.homepage && (
               <a href={project.homepage} aria-label={`${project.name} Docs`} target="_blank" rel="noreferrer">Docs<span aria-hidden="true"> ↗</span></a>
             )}
+            {project.corpusUrl && (
+              <a href={project.corpusUrl} aria-label={`${project.name} on XERJ Hub`} target="_blank" rel="noreferrer">XERJ Hub<span aria-hidden="true"> ↗</span></a>
+            )}
             <a href={project.url} aria-label={`${project.name} on GitHub`} target="_blank" rel="noreferrer">GitHub<span aria-hidden="true"> ↗</span></a>
           </div>
         </article>
@@ -36,3 +56,26 @@ const { projects } = Astro.props;
     ))}
   </ul>
 </div>
+
+<script>
+  document.querySelectorAll<HTMLElement>(".project-example").forEach((example) => {
+    const button = example.querySelector<HTMLButtonElement>(".project-example__copy");
+    const code = example.querySelector<HTMLElement>("pre code");
+    const status = example.querySelector<HTMLElement>(".project-example__status");
+    if (!button || !code || !status) return;
+
+    button.hidden = false;
+    button.addEventListener("click", async () => {
+      if (!navigator.clipboard?.writeText) {
+        status.textContent = "Copy unavailable. Select the code to copy it.";
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(code.textContent ?? "");
+        status.textContent = "Code copied.";
+      } catch {
+        status.textContent = "Copy failed. Select the code to copy it.";
+      }
+    });
+  });
+</script>

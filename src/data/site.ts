@@ -62,7 +62,10 @@ export interface PublicProject {
   url: string;
   homepage?: string;
   packageUrl?: string;
-  preview: { label: string; content: string };
+  corpusUrl?: string;
+  preview:
+    | { kind: "code"; label: string; content: string }
+    | { kind: "evidence"; label: string; items: Array<{ source: string; purpose: string }> };
 }
 
 export interface OtherWorkItem {
@@ -205,14 +208,16 @@ export const site: Site = {
   publicCode: [
     {
       name: "fpstreams",
-      description: "A Python library for typed, lazy data pipelines. Supports synchronous streams, structured async concurrency, record transforms, and optional Rust execution.",
+      description: "A Python library for typed, lazy data pipelines. Supports synchronous streams, structured async concurrency, record transforms, and optional Rust execution. Selected for the XERJ Corpus Hub as a reference for AI coding agents.",
       language: "Python · Rust",
       url: "https://github.com/steventimes/fpstreams",
       homepage: "https://steventimes.github.io/fpstreams/",
       packageUrl: "https://pypi.org/project/fpstreams/",
+      corpusUrl: "https://hub.xerj.org/contributors/steventimes",
       preview: {
+        kind: "code",
         label: "A small pipeline",
-        content: "(flow([1, 2, 3])\n    .filter(lambda n: n > 1)\n    .to_list())\n\n# [2, 3]"
+        content: "from fpstreams import flow\n\nprint(\n    flow([1, 2, 3])\n    .filter(lambda n: n > 1)\n    .to_list()\n)\n# [2, 3]"
       }
     },
     {
@@ -221,8 +226,13 @@ export const site: Site = {
       language: "Python",
       url: "https://github.com/steventimes/dependency-checker",
       preview: {
+        kind: "evidence",
         label: "Follow the evidence",
-        content: "pyproject.toml  →  declarations\nuv.lock         →  locked versions\nsrc/            →  source references"
+        items: [
+          { source: "pyproject.toml", purpose: "Dependency declarations" },
+          { source: "uv.lock", purpose: "Locked versions" },
+          { source: "src/", purpose: "Source references" }
+        ]
       }
     }
   ],

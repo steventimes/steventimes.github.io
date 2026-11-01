@@ -12,7 +12,7 @@ const { text, email, linkedin, github, resumePath } = Astro.props;
 <div class="contact-block">
   <p>{text}</p>
   <div class="contact-block__links">
-    <a href={`mailto:${email}`}>Email</a>
+    <a class="contact-block__email" href={`mailto:${email}`}>{email}<span aria-hidden="true"> ↗</span></a>
     <a href={linkedin} target="_blank" rel="noreferrer">LinkedIn</a>
     <a href={github} target="_blank" rel="noreferrer">GitHub</a>
     <a href={resumePath}>Résumé</a>
