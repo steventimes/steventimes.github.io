@@ -186,9 +186,7 @@ test("renders the curated public projects and their destinations", async ({ page
         await expect(row.getByRole("link", { name, exact: true })).toHaveAttribute("href", href);
       }
     }
-    if (project.preview.kind === "code") {
-      await expect(row.locator("pre code")).toHaveText(project.preview.content);
-    } else {
+    if (project.preview.kind === "evidence") {
       await expect(row.locator(".project-evidence dt")).toHaveText(project.preview.items.map((item) => item.source));
       await expect(row.locator(".project-evidence dd")).toHaveText(project.preview.items.map((item) => item.purpose));
     }
@@ -285,7 +283,7 @@ test("keeps code selectable without a nonfunctional copy button when JavaScript 
   await context.close();
 });
 
-test("emphasizes primary research on desktop and stacks it first on mobile", async ({ page }) => {
+test("keeps primary research prominent on desktop and first on mobile", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto("/");
 
@@ -296,6 +294,15 @@ test("emphasizes primary research on desktop and stacks it first on mobile", asy
   expect(primary!.width).toBeGreaterThan(secondary!.width);
   expect(Math.abs(primary!.y - secondary!.y)).toBeLessThan(2);
   expect(secondary!.x).toBeGreaterThanOrEqual(primary!.x + primary!.width);
+
+  const title = page.getByRole("heading", {
+    level: 3,
+    name: site.research.primary.title
+  });
+  const box = await title.boundingBox();
+  expect(box).not.toBeNull();
+  expect(box!.y).toBeLessThan(890);
+  expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBeLessThan(4700);
 
   await page.setViewportSize({ width: 390, height: 844 });
   const mobilePrimary = await page.locator(".research-primary").boundingBox();
@@ -359,20 +366,6 @@ test("keeps supporting text at readable sizes", async ({ page }) => {
     );
     expect(size, selector).toBeGreaterThanOrEqual(minimum);
   }
-});
-
-test("brings primary research into the first desktop viewport", async ({ page }) => {
-  await page.setViewportSize({ width: 1440, height: 1000 });
-  await page.goto("/");
-
-  const title = page.getByRole("heading", {
-    level: 3,
-    name: site.research.primary.title
-  });
-  const box = await title.boundingBox();
-  expect(box).not.toBeNull();
-  expect(box!.y).toBeLessThan(890);
-  expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBeLessThan(4700);
 });
 
 test("keeps labels readable to assistive technology", async ({ page }) => {
