@@ -2,13 +2,12 @@
 interface Props {
   id: string;
   title: string;
-  variant?: "default" | "band";
   description?: string;
 }
 
-const { id, title, variant = "default", description } = Astro.props;
+const { id, title, description } = Astro.props;
 ---
-<section id={id} aria-labelledby={`${id}-title`} class:list={["page-section", { "page-section--band": variant === "band" }]}>
+<section id={id} aria-labelledby={`${id}-title`} class="page-section">
   <div class="page-section__inner">
     <header class="page-section__header">
       <h2 id={`${id}-title`}>{title}</h2>
