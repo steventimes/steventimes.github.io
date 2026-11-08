@@ -66,15 +66,22 @@ const { projects } = Astro.props;
 
     button.hidden = false;
     button.addEventListener("click", async () => {
+      if (button.getAttribute("aria-disabled") === "true") return;
       if (!navigator.clipboard?.writeText) {
         status.textContent = "Copy unavailable. Select the code to copy it.";
         return;
       }
+      button.setAttribute("aria-disabled", "true");
+      button.setAttribute("aria-busy", "true");
+      status.textContent = "Copying…";
       try {
         await navigator.clipboard.writeText(code.textContent ?? "");
         status.textContent = "Code copied.";
       } catch {
         status.textContent = "Copy failed. Select the code to copy it.";
+      } finally {
+        button.removeAttribute("aria-disabled");
+        button.removeAttribute("aria-busy");
       }
     });
   });

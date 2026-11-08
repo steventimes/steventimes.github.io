@@ -130,7 +130,7 @@ export const site: Site = {
     metadata: [
       { label: "Degree", value: "B.S. Computer Science" },
       { label: "Graduation", value: "Expected December 2026" },
-      { label: "Academic record", value: "GPA 3.748 / 4.0. Dean's List every completed semester." }
+      { label: "Academic record", value: "GPA 3.748 / 4.0. Dean's List every completed semester. Provost's Summer Undergraduate Research Fellowship, Summer 2025." }
     ]
   },
 
@@ -140,15 +140,15 @@ export const site: Site = {
       title: "FluidLSM and adaptive RocksDB tuning",
       organization: "Smart & Scalable Data Systems Lab · Brandeis University",
       time: "May 2025 to present",
-      summary: "I study how storage systems respond to changing workloads.",
-      question: "How do skew, burstiness, and changing access patterns affect compaction and performance in LSM tree systems?",
-      contribution: "I build controlled RocksDB benchmarks and group dependent configuration parameters to narrow the tuning search space. I use these benchmarks to evaluate adaptive tuning methods for FluidLSM.",
+      summary: "I lead the FluidLSM evaluation of LLM-based RocksDB tuning under faculty supervision, working with PhD researchers.",
+      question: "How do tuning choices and LSM layouts affect throughput and latency across workloads?",
+      contribution: "I made compaction settings configurable in C++ and contributed benchmark scripts to compare LSM layouts across workloads.",
       methods: [
         "RocksDB",
         "LSM trees",
-        "Bayesian optimization",
-        "decision tree surrogate models",
-        "lightweight online learning"
+        "C++",
+        "LLM-based tuning evaluation",
+        "throughput and latency benchmarks"
       ]
     },
     secondary: {
@@ -176,11 +176,11 @@ export const site: Site = {
     title: "AI Development Intern",
     organization: "Hefei City Cloud Data Center Co., Ltd.",
     time: "Jun 2026 to Aug 2026",
-    summary: "I worked on email reimbursement automation, agent memory, and retrieval.",
+    summary: "I built email reimbursement automation and workflow tools for agent memory and retrieval.",
     contributions: [
-      "Built a workflow that reads reimbursement emails and attachments. It extracts merchant names, amounts, and dates and sends structured records to the reimbursement system.",
-      "Developed memory assignment and vector retrieval nodes for persistent agent context, filtered search, and memory lifecycle management.",
-      "Extended Java services and Vue interfaces for memory resources and workflow nodes. Migrated workflows and integrated database, vector store, and model services."
+      "Built an IMAP connector and Dify workflow to extract reimbursement details from emails and attachments and send them to Yudao approvals.",
+      "Added per-user mailbox authorization and temporary workflow access tokens, keeping credentials in the backend.",
+      "Developed five nodes for terminology lookup, memory retrieval and updates, and report generation, with supporting APIs and resource pages."
     ],
     technologies: ["Java", "Spring Boot", "Vue", "Qdrant", "agent memory", "workflow orchestration"],
     link: {
@@ -200,14 +200,14 @@ export const site: Site = {
       title: "Software Engineering Intern",
       organization: "Shanghai Development Center of Computer Software Technology",
       time: "May 2024 to Aug 2024",
-      summary: "Traced a workflow that generates SQL from text and worked with a Spring Boot and MyBatis backend. Used Linux tools to run services and inspect logs. Refactored Java service logic."
+      summary: "Refactored Java service logic with streams and lambda expressions and used Linux logs to debug services. Traced Supersonic AI’s text-to-SQL workflow from translation and parsing through planning and execution."
     }
   ],
 
   publicCode: [
     {
       name: "fpstreams",
-      description: "A Python library for typed, lazy data pipelines. Supports synchronous streams, structured async concurrency, record transforms, and optional Rust execution. Selected for the XERJ Corpus Hub as a reference for AI coding agents.",
+      description: "Filter, transform, and aggregate records with typed, lazy Python pipelines. Supports bounded async execution, resource cleanup, and Rust kernels for supported operations. Selected for the XERJ Corpus Hub as a reference for AI coding agents.",
       language: "Python · Rust",
       url: "https://github.com/steventimes/fpstreams",
       homepage: "https://steventimes.github.io/fpstreams/",
@@ -215,8 +215,8 @@ export const site: Site = {
       corpusUrl: "https://hub.xerj.org/contributors/steventimes",
       preview: {
         kind: "code",
-        label: "A small pipeline",
-        content: "from fpstreams import flow\n\nprint(\n    flow([1, 2, 3])\n    .filter(lambda n: n > 1)\n    .to_list()\n)\n# [2, 3]"
+        label: "Paid orders by region",
+        content: "from fpstreams import agg, col, flow\n\norders = [\n    {\"region\": \"eu\", \"status\": \"paid\", \"price\": 12, \"quantity\": 2},\n    {\"region\": \"us\", \"status\": \"paid\", \"price\": 20, \"quantity\": 1},\n    {\"region\": \"eu\", \"status\": \"cancelled\", \"price\": 99, \"quantity\": 1},\n    {\"region\": \"eu\", \"status\": \"paid\", \"price\": 8, \"quantity\": 3},\n]\nsummary = (\n    flow(orders)\n    .filter(col(\"status\") == \"paid\")\n    .with_columns(revenue=col(\"price\") * col(\"quantity\"))\n    .group_by(\"region\")\n    .aggregate(orders=agg.count(), revenue=agg.sum(\"revenue\"))\n    .sort_by(\"region\")\n    .to_list()\n)\nprint(summary)\n# [{'region': 'eu', 'orders': 2, 'revenue': 48},\n#  {'region': 'us', 'orders': 1, 'revenue': 20}]"
       }
     },
     {
@@ -240,7 +240,7 @@ export const site: Site = {
     {
       id: "blacklight",
       title: "Blacklight privacy detection",
-      description: "Helped research, develop, and validate detection of TikTok and X tracking pixels in Blacklight. The privacy scanner has processed more than 18 million scans.",
+      description: "Contributed to TikTok and X tracking-pixel detection and validation with The Markup and Brandeis University from August to December 2025. Blacklight has processed more than 18 million cumulative scans.",
       links: [{
         label: "Read the Blacklight update",
         href: "https://themarkup.org/blacklight/2026/02/09/blacklight-update-tiktok-x-twitter"

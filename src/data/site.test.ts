@@ -20,7 +20,7 @@ describe("portfolio content boundaries", () => {
     expect(fpstreams?.corpusUrl).toBe("https://hub.xerj.org/contributors/steventimes");
     expect(fpstreams?.preview.kind).toBe("code");
     if (fpstreams?.preview.kind === "code") {
-      expect(fpstreams.preview.content).toContain("from fpstreams import flow");
+      expect(fpstreams.preview.content).toContain("from fpstreams import agg, col, flow");
       expect(fpstreams.preview.content).toContain("print(");
     }
   });
@@ -31,6 +31,13 @@ describe("portfolio content boundaries", () => {
       label: "View reimbursement workflow code",
       href: "https://github.com/steventimes/Email-project-yudao"
     });
+  });
+
+  it("keeps the current research scope and fellowship aligned with the résumé", () => {
+    expect(site.research.primary.summary).toBe("I lead the FluidLSM evaluation of LLM-based RocksDB tuning under faculty supervision, working with PhD researchers.");
+    expect(site.research.primary.contribution).toBe("I made compaction settings configurable in C++ and contributed benchmark scripts to compare LSM layouts across workloads.");
+    expect(site.profile.metadata.find((item) => item.label === "Academic record")?.value)
+      .toContain("Provost's Summer Undergraduate Research Fellowship, Summer 2025.");
   });
 
   it("marks the completed 2026 Brandeis roles with their end dates", () => {

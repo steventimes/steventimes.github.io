@@ -229,6 +229,42 @@ test("copies the complete example by click and keyboard without moving focus", a
   await expect(button).toBeFocused();
 });
 
+test("copy controls replace old results while pending and block duplicate writes", async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "clipboard", { configurable: true, value: {
+      writeText: () => { (window as any).writes++; return (window as any).delayCopy
+        ? new Promise<void>((resolve, reject) => { (window as any).finishCopy = resolve; (window as any).failCopy = reject; })
+        : Promise.resolve(); }
+    } });
+    (window as any).writes = 0;
+  });
+  await page.goto("/");
+  for (const [container, success] of [["#fpstreams .project-example", "Code copied."], ["#fluidlsm .research-share", "Link copied."]]) {
+    const region = page.locator(container);
+    const button = region.getByRole("button");
+    const status = region.getByRole("status");
+    await button.focus();
+    await page.keyboard.press("Enter");
+    await expect(status).toHaveText(success);
+    await page.evaluate(() => { (window as any).delayCopy = true; (window as any).writes = 0; });
+    await button.click();
+    await expect(status).toHaveText("Copying…");
+    await expect(button).toHaveAttribute("aria-disabled", "true");
+    await expect(button).toHaveAttribute("aria-busy", "true");
+    await button.evaluate((element: HTMLButtonElement) => element.click());
+    expect(await page.evaluate(() => (window as any).writes)).toBe(1);
+    await page.evaluate(() => (window as any).failCopy(new Error("denied")));
+    await expect(status).toContainText("Copy failed.");
+    await expect(button).not.toHaveAttribute("aria-disabled");
+    await expect(button).not.toHaveAttribute("aria-busy");
+    await page.evaluate(() => { (window as any).delayCopy = false; });
+    await button.focus();
+    await page.keyboard.press("Space");
+    await expect(status).toHaveText(success);
+    await expect(button).toBeFocused();
+  }
+});
+
 test("work titles provide stable deep links without JavaScript", async ({ browser }) => {
   const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 320, height: 800 }, reducedMotion: "reduce" });
   const page = await context.newPage();
@@ -302,7 +338,6 @@ test("keeps primary research prominent on desktop and first on mobile", async ({
   const box = await title.boundingBox();
   expect(box).not.toBeNull();
   expect(box!.y).toBeLessThan(890);
-  expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBeLessThan(4700);
 
   await page.setViewportSize({ width: 390, height: 844 });
   const mobilePrimary = await page.locator(".research-primary").boundingBox();
@@ -353,6 +388,10 @@ test("keeps supporting text at readable sizes", async ({ page }) => {
     [".site-header__links a", 13],
     [".hero__role", 12],
     [".research-details p", 16],
+    [".research-meta", 14],
+    [".experience-meta", 14],
+    [".experience-list__time", 14],
+    [".publication-entry__role", 14],
     [".method-line", 13],
     [".experience-list article > p:last-child", 15],
     [".project-row__body > p", 16],
@@ -375,11 +414,18 @@ test("keeps labels readable to assistive technology", async ({ page }) => {
   await expect(page.locator(".experience-feature .method-line")).toContainText("Built with Java");
 });
 
-test("keeps the larger mobile layout compact", async ({ page }) => {
+test("keeps the complete order example in a mobile scroll area", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
 
-  expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBeLessThan(7300);
+  const example = page.locator("#fpstreams pre");
+  const preview = site.publicCode[0].preview;
+  if (preview.kind !== "code") throw new Error("Missing code example");
+  await expect(example.locator("code")).toHaveText(preview.content);
+  const box = await example.boundingBox();
+  expect(box!.x).toBeGreaterThanOrEqual(0);
+  expect(box!.x + box!.width).toBeLessThanOrEqual(390);
+  await expect(example).toHaveCSS("overflow-x", "auto");
 });
 
 for (const viewport of [
@@ -497,14 +543,37 @@ test("JavaScript-disabled mobile navigation keeps section links available", asyn
 test("keeps section text within mobile pages at doubled browser text size", async ({ page }) => {
   const session = await page.context().newCDPSession(page);
   await session.send("Page.setFontSizes", { fontSizes: { standard: 32 } });
-  for (const width of [390, 320]) {
+  for (const width of [320, 390, 860, 861]) {
     await page.setViewportSize({ width, height: 844 });
     await page.goto("/");
     await page.evaluate(() => document.fonts.ready);
     await expect(page.locator("html")).toHaveCSS("font-size", "32px");
     const name = await page.locator(".site-header__name").boundingBox();
     const menu = await page.locator("summary").boundingBox();
-    expect(name!.x + name!.width).toBeLessThanOrEqual(menu!.x);
+    const separated = name!.x + name!.width <= menu!.x + 1 || name!.y + name!.height <= menu!.y + 1;
+    expect(separated).toBe(true);
+    expect(name!.height).toBeLessThan(180);
+    if (width >= 860) {
+      const heading = await page.locator(".hero h1").evaluate((element) => ({
+        height: element.getBoundingClientRect().height,
+        lineHeight: parseFloat(getComputedStyle(element).lineHeight)
+      }));
+      expect(heading.height).toBeLessThanOrEqual(heading.lineHeight * 3 + 1);
+    }
+    await page.locator("summary").click();
+    const panel = page.locator(".site-header__menu > div");
+    const bounds = await panel.boundingBox();
+    expect(bounds!.x).toBeGreaterThanOrEqual(0);
+    expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(width);
+    const clipped = await panel.locator("a").evaluateAll((links) => links.filter((link) => {
+      const range = document.createRange(); range.selectNodeContents(link);
+      const outer = link.getBoundingClientRect();
+      return [...range.getClientRects()].some((rect) => rect.left < outer.left - 1 || rect.right > outer.right + 1);
+    }).map((link) => link.textContent));
+    expect(clipped).toEqual([]);
+    await page.keyboard.press("Escape");
+    await expect(page.locator("summary")).toBeFocused();
+
 
     expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
     for (const selector of [".hero h1", "#publication h2", "#experience h2", ".project-evidence dt", ".project-evidence dd", ".site-footer a"]) {

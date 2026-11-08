@@ -67,15 +67,22 @@ const { primary, secondary } = Astro.props;
     const status = share.querySelector<HTMLElement>("[role=status]")!;
     button.hidden = false;
     button.addEventListener("click", async () => {
+      if (button.getAttribute("aria-disabled") === "true") return;
       if (!navigator.clipboard?.writeText) {
         status.textContent = "Copy unavailable. Use the research link to copy it.";
         return;
       }
+      button.setAttribute("aria-disabled", "true");
+      button.setAttribute("aria-busy", "true");
+      status.textContent = "Copying…";
       try {
         await navigator.clipboard.writeText(link.href);
         status.textContent = "Link copied.";
       } catch {
         status.textContent = "Copy failed. Use the research link to copy it.";
+      } finally {
+        button.removeAttribute("aria-disabled");
+        button.removeAttribute("aria-busy");
       }
     });
   });
