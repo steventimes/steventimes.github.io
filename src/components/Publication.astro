@@ -7,14 +7,20 @@ interface Props {
 
 const { publication } = Astro.props;
 ---
+
 <article class="publication-entry">
-  <div class="publication-entry__symbol" aria-hidden="true"><span></span><span></span><span></span></div>
+  <div class="publication-entry__symbol" aria-hidden="true">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
   <div>
     <p class="section-kicker">Published paper</p>
     <h3>{publication.title}</h3>
     <p class="publication-entry__authors">{publication.authors}</p>
     <p class="publication-entry__venue">
-      <em>{publication.venue}</em><br />
+      <em>{publication.venue}</em>
+      <br />
       {publication.details}
     </p>
     <p class="publication-entry__role">{publication.role}</p>

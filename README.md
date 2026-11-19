@@ -39,13 +39,13 @@ npm run preview
 
 ## Content and structure
 
-| Location | Purpose |
-| --- | --- |
-| [src/data/site.ts](src/data/site.ts) | Shared site content |
-| [src/components/](src/components/) | Research, publications, experience, projects, and contact sections |
-| [src/pages/index.astro](src/pages/index.astro) | Home page composition |
-| [src/styles/global.css](src/styles/global.css) | Shared styles |
-| [public/](public/) | Static public assets |
+| Location                                       | Purpose                                                            |
+| ---------------------------------------------- | ------------------------------------------------------------------ |
+| [src/data/site.ts](src/data/site.ts)           | Shared site content                                                |
+| [src/components/](src/components/)             | Research, publications, experience, projects, and contact sections |
+| [src/pages/index.astro](src/pages/index.astro) | Home page composition                                              |
+| [src/styles/global.css](src/styles/global.css) | Shared styles                                                      |
+| [public/](public/)                             | Static public assets                                               |
 
 Keep biographical claims, publication details, project links, and résumé content
 consistent when editing the site.

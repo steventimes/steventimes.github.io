@@ -3,5 +3,5 @@ import config, { previewServer } from "./playwright.config";
 
 export default defineConfig({
   ...config,
-  webServer: { ...previewServer, command: "node tests/preview.mjs" }
+  webServer: { ...previewServer, command: "node tests/preview.mjs" },
 });

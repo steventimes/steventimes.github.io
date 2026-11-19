@@ -9,6 +9,7 @@ interface Props {
 
 const { name, profile, location } = Astro.props;
 ---
+
 <section id="about" class="hero" aria-labelledby="intro-title">
   <div class="hero__inner">
     <div class="hero__copy">
@@ -16,8 +17,12 @@ const { name, profile, location } = Astro.props;
       <p class="hero__role">{profile.role}</p>
       <p class="hero__intro">{profile.intro}</p>
       <div class="hero__actions" aria-label="Primary links">
-        <a class="hero__email" href={`mailto:${profile.email}`}>Email<span aria-hidden="true"> ↗</span></a>
-        <a href={profile.githubUrl} target="_blank" rel="noreferrer">GitHub</a>
+        <a class="hero__email" href={`mailto:${profile.email}`}>
+          Email<span aria-hidden="true"> ↗</span>
+        </a>
+        <a href={profile.githubUrl} target="_blank" rel="noreferrer">
+          GitHub
+        </a>
         <a href={profile.resumePath}>Résumé</a>
       </div>
     </div>
@@ -53,16 +58,43 @@ const { name, profile, location } = Astro.props;
     </div>
 
     <nav class="hero__directory" aria-label="Explore my work">
-      <a href="#research" aria-labelledby="directory-research" aria-describedby="directory-research-detail">
-        <span class="hero__directory-text"><strong id="directory-research">Research</strong><span id="directory-research-detail">Adaptive storage &amp; SQL evaluation</span></span>
+      <a
+        href="#research"
+        aria-labelledby="directory-research"
+        aria-describedby="directory-research-detail"
+      >
+        <span class="hero__directory-text">
+          <strong id="directory-research">Research</strong>
+          <span id="directory-research-detail">
+            Adaptive storage &amp; SQL evaluation
+          </span>
+        </span>
         <span aria-hidden="true">↘</span>
       </a>
-      <a href="#code" aria-labelledby="directory-code" aria-describedby="directory-code-detail">
-        <span class="hero__directory-text"><strong id="directory-code">Public code</strong><span id="directory-code-detail">Python pipelines &amp; tools for coding agents</span></span>
+      <a
+        href="#code"
+        aria-labelledby="directory-code"
+        aria-describedby="directory-code-detail"
+      >
+        <span class="hero__directory-text">
+          <strong id="directory-code">Public code</strong>
+          <span id="directory-code-detail">
+            Python pipelines &amp; tools for coding agents
+          </span>
+        </span>
         <span aria-hidden="true">↘</span>
       </a>
-      <a href="#experience" aria-labelledby="directory-experience" aria-describedby="directory-experience-detail">
-        <span class="hero__directory-text"><strong id="directory-experience">Experience</strong><span id="directory-experience-detail">AI workflows, backend services &amp; teaching</span></span>
+      <a
+        href="#experience"
+        aria-labelledby="directory-experience"
+        aria-describedby="directory-experience-detail"
+      >
+        <span class="hero__directory-text">
+          <strong id="directory-experience">Experience</strong>
+          <span id="directory-experience-detail">
+            AI workflows, backend services &amp; teaching
+          </span>
+        </span>
         <span aria-hidden="true">↘</span>
       </a>
     </nav>

@@ -3,7 +3,7 @@ import { defineConfig, devices } from "@playwright/test";
 export const previewServer = {
   command: "npm run build && node tests/preview.mjs",
   url: "http://127.0.0.1:4322",
-  timeout: 120_000
+  timeout: 120_000,
 };
 
 export default defineConfig({
@@ -14,10 +14,8 @@ export default defineConfig({
   use: {
     baseURL: "http://127.0.0.1:4322",
     trace: "retain-on-failure",
-    screenshot: "only-on-failure"
+    screenshot: "only-on-failure",
   },
-  projects: [
-    { name: "chromium", use: { ...devices["Desktop Chrome"] } }
-  ],
-  webServer: previewServer
+  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  webServer: previewServer,
 });

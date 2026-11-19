@@ -9,25 +9,34 @@ interface Props {
 
 const { name, navigation, resumePath } = Astro.props;
 ---
+
 <header class="site-header">
   <nav class="site-header__nav" aria-label="Primary navigation">
     <a class="site-header__name" href="#about">
-      <span class="site-header__mark" aria-hidden="true">HY</span>
+      <span class="site-header__mark" aria-hidden="true">
+        HY
+      </span>
       <span>{name}</span>
     </a>
 
     <div class="site-header__links">
-      {navigation.map((item) => <a href={item.href}>{item.label}</a>)}
+      {navigation.map((item) => (
+        <a href={item.href}>{item.label}</a>
+      ))}
     </div>
 
     <div class="site-header__actions">
-      <a href={resumePath}>Résumé<span aria-hidden="true"> ↗</span></a>
+      <a href={resumePath}>
+        Résumé<span aria-hidden="true"> ↗</span>
+      </a>
     </div>
 
     <details class="mobile-menu site-header__menu">
       <summary>Menu</summary>
       <div>
-        {navigation.map((item) => <a href={item.href}>{item.label}</a>)}
+        {navigation.map((item) => (
+          <a href={item.href}>{item.label}</a>
+        ))}
         <a href={resumePath}>Résumé</a>
       </div>
     </details>
@@ -45,7 +54,10 @@ const { name, navigation, resumePath } = Astro.props;
     });
 
     menu.addEventListener("focusout", (event) => {
-      if (event.relatedTarget instanceof Node && !menu.contains(event.relatedTarget)) {
+      if (
+        event.relatedTarget instanceof Node &&
+        !menu.contains(event.relatedTarget)
+      ) {
         menu.open = false;
       }
     });
@@ -53,7 +65,7 @@ const { name, navigation, resumePath } = Astro.props;
     menu.addEventListener("keydown", (event) => {
       if (event.key === "Escape" && menu.open) {
         menu.open = false;
-        menu.querySelector("summary")?.focus();
+        menu.querySelector("summary")?.focus({ preventScroll: true });
       }
     });
 

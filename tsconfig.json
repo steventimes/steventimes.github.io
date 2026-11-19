@@ -1,5 +1,7 @@
 {
   "extends": "astro/tsconfigs/strict",
+  // Archived local evidence and probes are not maintained project inputs.
+  "exclude": ["dist", "output"],
   "compilerOptions": {
     "types": ["astro/client"]
   }

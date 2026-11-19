@@ -5,6 +5,6 @@ export default defineConfig({
   site: "https://steventimes.github.io",
   base: "/",
   vite: {
-    plugins: [tailwindcss()]
-  }
+    plugins: [tailwindcss()],
+  },
 });

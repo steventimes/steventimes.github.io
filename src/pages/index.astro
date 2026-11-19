@@ -14,30 +14,62 @@ import { site } from "../data/site";
 import "../styles/global.css";
 ---
 
-<BaseLayout title={`${site.name} | Database Research & AI Systems`} description={site.role}>
-  <a class="skip-link" href="#main-content">Skip to content</a>
-  <SiteHeader name={site.name} navigation={site.navigation} resumePath={site.resumePath} />
+<BaseLayout
+  title={`${site.name} | Database Research & AI Systems`}
+  description={site.role}
+  imageAlt={`${site.name} portrait`}
+>
+  <a class="skip-link" href="#main-content">
+    Skip to content
+  </a>
+  <SiteHeader
+    name={site.name}
+    navigation={site.navigation}
+    resumePath={site.resumePath}
+  />
 
   <main id="main-content">
     <Hero name={site.name} profile={site.profile} location={site.location} />
 
-    <Section id="research" title="Research" description="Adaptive storage systems and SQL generation from text.">
-      <Research primary={site.research.primary} secondary={site.research.secondary} />
+    <Section
+      id="research"
+      title="Research"
+      description="Adaptive storage systems and SQL generation from text."
+    >
+      <Research
+        primary={site.research.primary}
+        secondary={site.research.secondary}
+      />
     </Section>
 
     <Section id="publication" title="Publication">
       <Publication publication={site.publication} />
     </Section>
 
-    <Section id="experience" title="Experience" description="AI workflow development, backend engineering, and database teaching.">
-      <Experience featured={site.featuredExperience} supporting={site.supportingExperience} />
+    <Section
+      id="experience"
+      title="Experience"
+      description="AI workflow development, backend engineering, and database teaching."
+    >
+      <Experience
+        featured={site.featuredExperience}
+        supporting={site.supportingExperience}
+      />
     </Section>
 
-    <Section id="code" title="Public Code" description="Python data pipelines and dependency analysis for coding agents.">
+    <Section
+      id="code"
+      title="Public Code"
+      description="Python data pipelines and dependency analysis for coding agents."
+    >
       <PublicCode projects={site.publicCode} />
     </Section>
 
-    <Section id="other-work" title="Other Work" description="Privacy research and tools for editing notebooks.">
+    <Section
+      id="other-work"
+      title="Other Work"
+      description="Privacy research and tools for editing notebooks."
+    >
       <OtherWork items={site.otherWork} />
     </Section>
 
@@ -57,7 +89,11 @@ import "../styles/global.css";
   </main>
 
   <footer class="site-footer">
-    <p>{site.name} · {site.location} · © {new Date().getFullYear()}</p>
-    <a href="#about">Back to top<span aria-hidden="true"> ↑</span></a>
+    <p>
+      {site.name} · {site.location} · © {new Date().getFullYear()}
+    </p>
+    <a href="#about">
+      Back to top<span aria-hidden="true"> ↑</span>
+    </a>
   </footer>
 </BaseLayout>

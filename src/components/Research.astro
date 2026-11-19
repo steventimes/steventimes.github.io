@@ -8,6 +8,7 @@ interface Props {
 
 const { primary, secondary } = Astro.props;
 ---
+
 <div class="research-layout">
   <article id={primary.id} class="research-primary">
     <header class="research-heading">
@@ -28,8 +29,12 @@ const { primary, secondary } = Astro.props;
     </div>
     <p class="method-line">{primary.methods.join(" · ")}</p>
     <div class="research-share">
-      <a href={`#${primary.id}`} aria-label={`Link to ${primary.title}`}>Link to research</a>
-      <button type="button" hidden aria-label={`Copy link to ${primary.title}`}>Copy link</button>
+      <a href={`#${primary.id}`} aria-label={`Link to ${primary.title}`}>
+        Link to research
+      </a>
+      <button type="button" hidden aria-label={`Copy link to ${primary.title}`}>
+        Copy link
+      </button>
       <p role="status"></p>
     </div>
   </article>
@@ -53,8 +58,16 @@ const { primary, secondary } = Astro.props;
     </div>
     <p class="method-line">{secondary.methods.join(" · ")}</p>
     <div class="research-share">
-      <a href={`#${secondary.id}`} aria-label={`Link to ${secondary.title}`}>Link to research</a>
-      <button type="button" hidden aria-label={`Copy link to ${secondary.title}`}>Copy link</button>
+      <a href={`#${secondary.id}`} aria-label={`Link to ${secondary.title}`}>
+        Link to research
+      </a>
+      <button
+        type="button"
+        hidden
+        aria-label={`Copy link to ${secondary.title}`}
+      >
+        Copy link
+      </button>
       <p role="status"></p>
     </div>
   </article>
@@ -69,7 +82,8 @@ const { primary, secondary } = Astro.props;
     button.addEventListener("click", async () => {
       if (button.getAttribute("aria-disabled") === "true") return;
       if (!navigator.clipboard?.writeText) {
-        status.textContent = "Copy unavailable. Use the research link to copy it.";
+        status.textContent =
+          "Copy unavailable. Use the research link to copy it.";
         return;
       }
       button.setAttribute("aria-disabled", "true");
